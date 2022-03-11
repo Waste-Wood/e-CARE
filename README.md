@@ -5,8 +5,6 @@ Understanding causality has vital importance for various Natural Language Proces
 
 
 
------------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\----------------------
-
 The following provides an instance from the e-CARE dataset:
 
 | Key          | Value                                                        |
@@ -18,8 +16,6 @@ The following provides an instance from the e-CARE dataset:
 | Explanation  | Copper is a good thermal conductor.                          |
 
 
-
------------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\----------------------
 
 Each instance of the e-CARE dataset is constituted by two components: 
 
@@ -92,7 +88,7 @@ On this basis, we introduce two tasks:
   | GPT              | 67.59 | 68.15 |
   | GPT-2            | 70.36 | 69.51 |
 
------------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\----------------------
+
 
 + Explanation Generation Task
   It requires the model to generate a free-text-formed explanation for a given causal fact (composed of a premise and the corresponding correct hypothesis).
