@@ -56,9 +56,9 @@ A conceptual explanation is about the essential condition that enables the exist
 
 * Number of conceptual explanations
 
-|                                   | Overall | Train | Test | Dev  |
-| --------------------------------- | ------- | ----- | ---- | ---- |
-| Number of conceptual explanations | 13048   | 10491 | 3814 | 2012 |
+| Overall | Train | Test | Dev  |
+| ------- | ----- | ---- | ---- |
+| 13048   | 10491 | 3814 | 2012 |
 
 
 
