@@ -19,7 +19,7 @@
 
 #### Running Causal Reasoning Task
 
-* fine-tuning with GPT-2
+* fine-tuning with **GPT-2**
 
   ```shell
   python3 gpt2_discriminate.py \
@@ -42,7 +42,7 @@
     --patient 3 \
   ```
 
-* fine-tuning with BART-base
+* fine-tuning with **BART-base**
 
   ```shell
   python3 train_discriminate.py \
@@ -66,7 +66,7 @@
     --loss_func "BCE" \
   ```
 
-* fine-tuning with BERT-base
+* fine-tuning with **BERT-base**
 
   ```shell
   python3 train_discriminate.py \
@@ -90,7 +90,7 @@
     --loss_func "BCE" \
   ```
 
-* fine-tuning with RoBERTa-base
+* fine-tuning with **RoBERTa-base**
 
   ```shell
   python3 train_discriminate.py \
@@ -114,7 +114,7 @@
     --loss_func "BCE" \
   ```
 
-* fine-tuning with XLNet-base
+* fine-tuning with **XLNet-base**
 
   ```shell
   python3 train_discriminate.py \
@@ -138,7 +138,7 @@
     --loss_func "BCE" \
   ```
 
-* fine-tuning with ALBERT-base
+* fine-tuning with **ALBERT-base**
 
   ```shell
   python3 train_discriminate.py \
@@ -162,7 +162,7 @@
     --loss_func "BCE" \
   ```
 
-* fine-tuning with GPT
+* fine-tuning with **GPT**
 
   ```shell
   python3 train_discriminate.py \
@@ -190,7 +190,7 @@
 
 #### Running  Explanation Generation Task
 
-* fine-tuning with GPT-2
+* fine-tuning with **GPT-2**
 
   ```shell
   python3 gpt2_generate.py \
@@ -213,7 +213,7 @@
   	--length 22 \
   ```
 
-* training with RNN
+* training with **RNN**
 
   ```shell
   cd ./model/rnn
