@@ -11,14 +11,42 @@ The following provides an instance from the e-CARE dataset:
 |Hypothesis 2:| The copper block keeps the same. (×)|
 |Explanation: Copper is a good thermal conductor.|
 
-# Basic Statistics
+Each instance of the e-CARE dataset is constituted by two components: 
+(1) a multiple-choice causal reasoning question, composed of a premise and two hypotheses, and one of the hypotheses can form a valid causal fact with the premise; 
+(2) a conceptual explanation about the essential condition that enables the existence of the causal fact. For example, as the above instance shows, the explanation points out the nature of copper that Copper is a good thermal conductor, so that holding copper on fire will make fingers feel burnt immediately. 
+
+## Basic Statistics
+
+Subset Train Test Dev
+Cause 7617 2176 1088
+Effect 7311 2088 1044
+
+## Basic Statistics
+
+To train and evaluate the model, the complete training and dev set can be downloaded at:
+The causal question of testing set is provided in: 
+To evaluate the model performance on test set, you need upload the results to:
+
+## Baseline Results
+
+On this basis, we introduce two tasks:
+
+Causal Reasoning Task
+We formulate the causal reasoning task as a multiple-choice task: given a premise event, one needs to choose a more plausible hypothesis from two candidates, so that the premise and the correct hypothesis can form into a valid causal fact.
+
+Explanation Generation Task
+It requires the model to generate a free-text-formed explanation for a given causal fact (composed of a premise and the corresponding correct hypothesis).
 
 
-# Baseline Results
+## Future Direction
 
+### serve as a causal knowledge base
 
-# Future Direction
+Causal knowledge is critical for various NLP applications. The causality knowledge provided by e-CARE can be used as a resource to boost model performance on other causal-related tasks. To this end, we apply transfer learning by first finetuning a BERT model on e-CARE, then adapting the e-CARE-enhanced model (denoted as BERT$_\text{E}$) on a causal extraction task EventStoryLine \cite{caselli2017event}, two causal reasoning tasks BECauSE 2.0 \cite{dunietz2017because} and COPA \cite{roemmele2011choice}, as well as a commonsense reasoning dataset CommonsenseQA \cite{talmor2019commonsenseqa}. The results are shown in the table below. We observe that the additional training process on e-CARE can consistently increase the model performance on all four tasks. This indicates the potential of e-CARE in providing necessary causality information for promoting causal-related tasks in multiple domains.
 
-## knowledge base
+### Abductive Reasoning
 
-## Abductive Reasoning
+In the e-CARE dataset, we introduce additional explanation information for the causal reasoning process, and propose a corresponding explanation generation task. Previous literature concluded the explanation generation process as an \emph{abductive reasoning} process, and highlighted the importance of the abdutive explanation generation, as it may interact with the causal reasoning process to promote the understanding of causal mechanism, and increase the efficiency and reliability of causal reasoning.
+
+For example, as Figure~\ref{fig:discuss} shows, one may have an observation that $C_1$: \emph{adding rock into hydrochloric acid} caused $E_1$: \emph{rock dissolved}. Through abductive reasoning, one may come up with a conceptual explanation for the observation that \emph{acid is corrosive}. After that, one can confirm or rectify the explanation by experiments, or resorting to external references. In this way, new ideas about causality can be involved for understanding the observed causal fact. Then if the explanation is confirmed, it can be further utilized to support the causal reasoning process by helping to explain and validate other related causal facts, such as $C_2$: \emph{adding rust into sulphuric acid} may lead to $E_2$: {rust dissolved}.  
+This analysis highlights the pivotal role of conceptual explanation in learning and inferring causality. In this paper, we introduce the e-CARE dataset to provide causal explanations and support future research towards stronger human-like causal reasoning systems. 
