@@ -3,39 +3,107 @@
 ## Brief Introduction
 Understanding causality has vital importance for various Natural Language Processing (NLP) applications. Beyond the labeled instances, conceptual explanations of the causality can provide deep understanding of the causal fact to facilitate the causal reasoning process. We present a human-annotated explainable CAusal REasoning dataset (e-CARE), which contains over 20K causal reasoning questions, together with natural language formed explanations of the causal questions. The original paper is availiable at: 
 
+
+
+-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\----------------------
+
 The following provides an instance from the e-CARE dataset:
 
-|Premise:| Tom holds a copper block by hand and heats it on fire.|
-|Ask-for:|Effect|
-|Hypothesis 1:| His fingers feel burnt immediately. (√)|
-|Hypothesis 2:| The copper block keeps the same. (×)|
-|Explanation: Copper is a good thermal conductor.|
+| Key          | Value                                                        |
+| ------------ | ------------------------------------------------------------ |
+| Premise      | Tom holds a copper block by hand and heats it on fire.       |
+| Ask-for      | Effect                                                       |
+| Hypothesis 1 | His fingers feel burnt immediately. (<font color=Green>&#10004;</font>) |
+| Hypothesis 2 | The copper block keeps the same. (<font color=Red>&#x2716;</font>) |
+| Explanation  | Copper is a good thermal conductor.                          |
+
+
+
+-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\----------------------
 
 Each instance of the e-CARE dataset is constituted by two components: 
-(1) a multiple-choice causal reasoning question, composed of a premise and two hypotheses, and one of the hypotheses can form a valid causal fact with the premise; 
-(2) a conceptual explanation about the essential condition that enables the existence of the causal fact. For example, as the above instance shows, the explanation points out the nature of copper that Copper is a good thermal conductor, so that holding copper on fire will make fingers feel burnt immediately. 
+
+* Multiple-choice Causal Reasoning Question
+
+A multiple-choice causal reasoning question consists of a premise and two hypotheses, and one of the hypotheses can form a valid causal fact with the premise; 
+
+* Conceptual Explanation
+
+A conceptual explanation is about the essential condition that enables the existence of the causal fact. For example, as the above instance shows, the explanation points out the nature of copper that Copper is a good thermal conductor, so that holding copper on fire will make fingers feel burnt immediately. 
+
+-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\----------------------
 
 ## Basic Statistics
 
-Subset Train Test Dev
-Cause 7617 2176 1088
-Effect 7311 2088 1044
+* The question type distribution
 
-## Basic Statistics
+|        | Train  | Test  |  Dev  | Total |
+| :----: | :----: | :---: | :---: | :---: |
+| Cause  | 7,617  | 2,176 | 1,088 | 10881 |
+| Effect | 7,311  | 2,088 | 1,044 | 10443 |
+| Total  | 14,928 | 4,264 | 2,132 | 21324 |
+
+* The label distribution
+
+|      | Train | Test | Dev  |
+| ---- | ----- | ---- | ---- |
+| 0    | 7463  | 2132 | 1066 |
+| 1    | 7465  | 2132 | 1066 |
+
+* Average length of cause, effect, wrong hypothesis and conceptual explanation
+
+|                        | Overall | Train | Test | Dev  |
+| ---------------------- | ------- | ----- | ---- | ---- |
+| Conceptual Explanation | 7.63    | 7.62  | 7.60 | 7.77 |
+| Cause                  | 8.51    | 8.51  | 8.47 | 8.56 |
+| Effect                 | 8.34    | 8.33  | 8.38 | 8.31 |
+| Distractor Option      | 8.14    | 8.14  | 8.10 | 8.21 |
+
+* Number of conceptual explanations
+
+|                                   | Overall | Train | Test | Dev  |
+| --------------------------------- | ------- | ----- | ---- | ---- |
+| Number of conceptual explanations | 13048   | 10491 | 3814 | 2012 |
+
+
+
+## Dataset, Training & Evaluation
 
 To train and evaluate the model, the complete training and dev set can be downloaded at:
 The causal question of testing set is provided in: 
 To evaluate the model performance on test set, you need upload the results to:
+
+
 
 ## Baseline Results
 
 On this basis, we introduce two tasks:
 
 + Causal Reasoning Task
-The causal reasoning task is a multiple-choice task: given a premise event, one needs to choose a more plausible hypothesis from two candidates, so that the premise and the correct hypothesis can form into a valid causal fact.
+  The causal reasoning task is a multiple-choice task: given a premise event, one needs to choose a more plausible hypothesis from two candidates, so that the premise and the correct hypothesis can form into a valid causal fact.
+
+  | Model            | Dev   | Test  |
+  | ---------------- | ----- | ----- |
+  | Bart-base        | 73.03 | 71.65 |
+  | Bert-base-cased  | 75.47 | 75.38 |
+  | RoBERTa-base     | 70.64 | 70.73 |
+  | XLNet-base-cased | 75.61 | 74.58 |
+  | ALBERT           | 73.97 | 74.60 |
+  | GPT              | 67.59 | 68.15 |
+  | GPT-2            | 70.36 | 69.51 |
+
+-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\----------------------
 
 + Explanation Generation Task
-It requires the model to generate a free-text-formed explanation for a given causal fact (composed of a premise and the corresponding correct hypothesis).
+  It requires the model to generate a free-text-formed explanation for a given causal fact (composed of a premise and the corresponding correct hypothesis).
+
+| Model      | BLEU-1 | BLEU-2 | BLEU-3 | BLEU-4 | Rouge-1 | Rouge-2 | Rouge-l | PPL   |
+| ---------- | ------ | ------ | ------ | ------ | ------- | ------- | ------- | ----- |
+| GPT-2      | 55.17  | 33.29  | 23.00  | 18.79  | 33.17   | 10.23   | 32.05   | 6.87  |
+| RNN        | 43.25  | 18.20  | 6.76   | 4.16   | 20.79   | 2.20    | 20.85   | 33.84 |
+| Multi-Task | 56.32  | 35.96  | 26.47  | 22.36  | 35.70   | 12.57   | 34.88   | 6.64  |
+
+
 
 
 ## Future Direction
