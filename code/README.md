@@ -1,6 +1,6 @@
 ## Code for ACL' 2022 paper: e-CARE: a New Dataset for Exploring Explainable Causal Reasoning
 
-#### requirements
+#### --requirements
 
 * python >= 3.6
 * torch >= 1.3.1
@@ -11,7 +11,7 @@
 
 
 
-#### Running discriminate and generation tasks with pre-pretrained language model
+#### --Running discriminate and generation tasks with pre-pretrained language model
 
 * running causal reasoning task
 
@@ -263,7 +263,7 @@
 
 
 
-#### Adversarial Filtering & Gradient Attack
+#### --Adversarial Filtering & Gradient Attack
 
 * running adversarial filtering
 
