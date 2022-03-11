@@ -1,0 +1,63 @@
+# toy_en_de.yaml
+
+
+save_data: ./save
+save_model: ./save/model
+# overwrite: False
+src_vocab: ./vocab.src
+tgt_vocab: ./vocab.src
+
+
+data:
+    corpus_1:
+        path_src: /users5/kxiong/work/xCAR/data/final_data/data/src-train.txt
+        path_tgt: /users5/kxiong/work/xCAR/data/final_data/data/tgt-train.txt
+    valid:
+        path_src: /users5/kxiong/work/xCAR/data/final_data/data/src-dev.txt
+        path_tgt: /users5/kxiong/work/xCAR/data/final_data/data/tgt-dev.txt
+
+
+both_embeddings: /users5/kxiong/embeddings/english/glove.6B.300d.txt
+embeddings_type: "GloVe"
+share_embeddings: True
+word_vec_size: 300
+
+# save_best_model: True
+# encoder_type: rnn
+# decoder_type: rnn
+# rnn_type: "GRU"
+layers: 2
+# bidirectional: True
+# optim: "adam"
+# adam_beta2: 0.998
+# decay_method: "noam"
+# learning_rate: 0.01
+
+# optim: "adam"
+# learning_rate: 0.001
+# adagrad_accumulator_init: 0.1 
+
+
+# update_learning_rate: True
+# start_decay_steps: 50
+# learning_rate_decay: 0.5
+# adagrad_accumulator_init: 0.1
+
+seed: 338
+share_vocab: True
+gpu_ranks: [0]
+# rnn_size: 512
+# hidden_size: 256
+batch_size: 256
+log_file: ./save/rnn.log
+report_every: 100
+train_steps: 10000
+# epochs: 100
+valid_steps: 50
+# early_stopping: 10
+# early_stopping_criteria: ppl
+save_checkpoint_steps: 50
+start_decay_steps: 1500
+decay_steps: 500
+
+

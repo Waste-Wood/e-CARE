@@ -1,0 +1,26 @@
+
+model: ./save/model_step_2600.pt
+
+
+
+src: /users5/kxiong/work/xCAR/data/final_data/data/src-dev.txt
+tgt: /users5/kxiong/work/xCAR/data/final_data/data/tgt-dev.txt
+output: ./save/dev_prediction.txt
+# report_align: True
+
+
+beam_size: 5
+random_sampling_topk: 10
+
+seed: 338
+
+
+max_length: 35
+ban_unk_token: True
+
+
+log_file: ./save/predict.log
+
+
+batch_size: 128
+gpu: 0
