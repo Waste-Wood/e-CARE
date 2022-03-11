@@ -27,7 +27,6 @@ A multiple-choice causal reasoning question consists of a premise and two hypoth
 
 A conceptual explanation is about the essential condition that enables the existence of the causal fact. For example, as the above instance shows, the explanation points out the nature of copper that Copper is a good thermal conductor, so that holding copper on fire will make fingers feel burnt immediately. 
 
------------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\-----------\----------------------
 
 ## Basic Statistics
 
