@@ -122,7 +122,9 @@ Previous literature concluded the explanation generation process as an **abducti
 
 For example, as the following figure shows, one may have an observation that C1: *adding rock into hydrochloric acid* caused E1: *rock dissolved*. Through abductive reasoning, one may come up with a conceptual explanation for the observation that *acid is corrosive*. After that, one can confirm or rectify the explanation by experiments, or resorting to external references. In this way, new ideas about causality can be involved for understanding the observed causal fact. Then if the explanation is confirmed, it can be further utilized to support the causal reasoning process by helping to explain and validate other related causal facts, such as C2: *adding rust into sulphuric acid* may lead to E2: *rust dissolved*.  This analysis highlights the pivotal role of conceptual explanation in learning and inferring causality and the e-CARE dataset to provide causal explanations and support future research towards stronger human-like causal reasoning systems. 
 
-
+<div align=center>
+<img src="https://github.com/Waste-Wood/e-CARE/blob/main/pic_2.png" width="500" height="300">
+</div>
 <!-- <style>table {margin: auto;}</style>
  -->
 
