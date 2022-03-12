@@ -19,13 +19,13 @@ The following provides an instance from the e-CARE dataset:
 
 Each instance of the e-CARE dataset is constituted by two components: 
 
-* Multiple-choice Causal Reasoning Question
+* A multiple-choice Causal Reasoning Question
 
 A multiple-choice causal reasoning question consists of a premise and two hypotheses, and one of the hypotheses can form a valid causal fact with the premise; 
 
-* Conceptual Explanation
+* A conceptual Explanation
 
-A conceptual explanation is about the essential condition that enables the existence of the causal fact. For example, as the above instance shows, the explanation points out the nature of copper that Copper is a good thermal conductor, so that holding copper on fire will make fingers feel burnt immediately. 
+The conceptual explanation is about the essential condition that enables the existence of the causal fact. For example, as the above instance shows, the explanation points out the nature of copper that Copper is a good thermal conductor, so that holding copper on fire will make fingers feel burnt immediately. 
 
 
 ## Basic Statistics
@@ -113,7 +113,7 @@ We have made exploration by applying transfer learning by first finetuning a BER
   |---------|--------|------|-------|
   |EventStoryLine 0.9 | F1 (%)    | 66.5 | 68.1 |
   |BECauSE 2.1        | Accu. (%) | 76.8 | 81.0 |
-  |COPA               | Accu. (%)  |70.4 | 75.4 |
+  |COPA               | Accu. (%) | 70.4 | 75.4 |
   |CommonsenseQA      | Accu. (%) | 52.6 | 56.4 |
 
 ### Abductive Reasoning
