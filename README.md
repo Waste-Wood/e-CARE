@@ -7,25 +7,65 @@ Understanding causality has vital importance for various Natural Language Proces
 
 The following provides an instance from the e-CARE dataset:
 
-| Key          | Value                                                        |
-| ------------ | ------------------------------------------------------------ |
-| Premise      | Tom holds a copper block by hand and heats it on fire.       |
-| Ask-for      | Effect                                                       |
-| Hypothesis 1 | His fingers feel burnt immediately. (<font color=Green>&#10004;</font>) |
-| Hypothesis 2 | The copper block keeps the same. (<font color=Red>&#x2716;</font>) |
-| Explanation  | Copper is a good thermal conductor.                          |
+| Key                    | Value                                                        |
+| ---------------------- | ------------------------------------------------------------ |
+| Premise                | Tom holds a copper block by hand and heats it on fire.       |
+| Ask-for                | Effect                                                       |
+| Hypothesis 1           | His fingers feel burnt immediately. (<font color=Green>&#10004;</font>) |
+| Hypothesis 2           | The copper block keeps the same. (<font color=Red>&#x2716;</font>) |
+| Conceptual Explanation | Copper is a good thermal conductor.                          |
 
 
 
-Each instance of the e-CARE dataset is constituted by two components: 
+## Data Format
 
-* A multiple-choice Causal Reasoning Question
+There are three versions of e-CARE dataset: **<font color=Red>Causal Reasoning</font>**, <font color=Blue>**Explanation Generation**</font> and **<font color=Green>Full</font>**.
 
-A multiple-choice causal reasoning question consists of a premise and two hypotheses, and one of the hypotheses can form a valid causal fact with the premise; 
+* <font color=Red>**Causal Reasoning**</font>: Causal Reasoning Task
 
-* A conceptual Explanation
+A multiple-choice causal reasoning question consists of a premise and two hypotheses, and one of the hypotheses can form a valid causal fact with the premise. Each instance of <font color=Red>**Causal Reasoning**</font> (`./dataset/Causal_Reasoning`) is a line in `./dataset/Causal_Reasoning/train.jsonl` or `./dataset/Causal_Reasoning/dev.jsonl`,  each line is in json format, python package `jsonlines` can handle this format. The keys and values of a line dict are list as follows:
 
-The conceptual explanation is about the essential condition that enables the existence of the causal fact. For example, as the above instance shows, the explanation points out the nature of copper that Copper is a good thermal conductor, so that holding copper on fire will make fingers feel burnt immediately. 
+```json
+{
+	"id": "train-0",  #The unique id of a Causal Reasoning instance
+  "premise": "Tom holds a copper block by hand and heats it on fire.", #The premise event which need to be matched
+  "ask-for": "effect", #effect means you should find a effect event in two hypothesises to match the premise
+  "hypothesis1": "His fingers feel burnt immediately.", #First choice to match the premise
+  "hypothesis2": "The copper block keeps the same.", #Second choice to match the premise
+  "label": 0 #The answer of this instance, 0 means hypothesis1, 1 means hypothesis2
+} 
+```
+
+* <font color=Blue>**Explanation Generation**</font>: Conceptual Explanation Generation Task
+
+The conceptual explanation is about the essential condition that enables the existence of the causal fact. For example, as the above instance shows, the explanation points out the nature of copper that Copper is a good thermal conductor, so that holding copper on fire will make fingers feel burnt immediately.  Each instance of <font color=Blue>**Explanation Generation**</font> (`./dataset/Explanation_Generation`) is a line in `./dataset/Explanation_Generation/train.jsonl` or `./dataset/Explanation_Generation/dev.jsonl`, each line is in json format, the keys and values of a line are list as follows:
+
+```json
+{
+	"id": "train-0",  #The unique id of a Conceptual Explanation Generation instance
+	"cause": "Tom holds a copper block by hand and heats it on fire.", #The cause event of a causal pair
+  "effect": "His fingers feel burnt immediately.", #The effect event of a causal pair
+  "conceptual_explanation": "Copper is a good thermal conductor." #The explanation of why this causal pair is valid
+}
+```
+
+* **<font color=Green>Full</font>**: Causal Reasoning & Explanation Generation
+
+The full version of e-CARE provides all the information which can be used for both causal reasoning and explanation generation tasks. Each line in `./dataset/train_full.jsonl` or `./dataset/dev.jsonl` is in json format, keys and values in a line are list as follows:
+
+```json
+{
+	"id": "train-0",
+  "premise": "Tom holds a copper block by hand and heats it on fire.",
+  "ask-for": "effect",
+  "hypothesis1": "His fingers feel burnt immediately.",
+	"hypothesis2": "The copper block keeps the same.",
+  "conceptual_explanation": "Copper is a good thermal conductor."
+  "label": 0
+}
+```
+
+
 
 
 ## Basic Statistics
