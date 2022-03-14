@@ -27,12 +27,12 @@ A multiple-choice causal reasoning question consists of a premise and two hypoth
 
 ```json
 {
-	"id": "train-0",  #The unique id of a Causal Reasoning instance
-  "premise": "Tom holds a copper block by hand and heats it on fire.", #The premise event which need to be matched
-  "ask-for": "effect", #effect means you should find a effect event in two hypothesises to match the premise
-  "hypothesis1": "His fingers feel burnt immediately.", #First choice to match the premise
-  "hypothesis2": "The copper block keeps the same.", #Second choice to match the premise
-  "label": 0 #The answer of this instance, 0 means hypothesis1, 1 means hypothesis2
+	"id": "train-0",
+	"premise": "Tom holds a copper block by hand and heats it on fire.",
+	"ask-for": "effect", 
+	"hypothesis1": "His fingers feel burnt immediately.", 
+	"hypothesis2": "The copper block keeps the same.", 
+	"label": 0
 } 
 ```
 
@@ -42,10 +42,10 @@ The conceptual explanation is about the essential condition that enables the exi
 
 ```json
 {
-	"id": "train-0",  #The unique id of a Conceptual Explanation Generation instance
-	"cause": "Tom holds a copper block by hand and heats it on fire.", #The cause event of a causal pair
-  "effect": "His fingers feel burnt immediately.", #The effect event of a causal pair
-  "conceptual_explanation": "Copper is a good thermal conductor." #The explanation of why this causal pair is valid
+	"id": "train-0", 
+	"cause": "Tom holds a copper block by hand and heats it on fire.",
+	"effect": "His fingers feel burnt immediately.",
+	"conceptual_explanation": "Copper is a good thermal conductor."
 }
 ```
 
@@ -56,12 +56,12 @@ The full version of e-CARE provides all the information which can be used for bo
 ```json
 {
 	"id": "train-0",
-  "premise": "Tom holds a copper block by hand and heats it on fire.",
-  "ask-for": "effect",
-  "hypothesis1": "His fingers feel burnt immediately.",
+	"premise": "Tom holds a copper block by hand and heats it on fire.",
+	"ask-for": "effect",
+	"hypothesis1": "His fingers feel burnt immediately.",
 	"hypothesis2": "The copper block keeps the same.",
-  "conceptual_explanation": "Copper is a good thermal conductor."
-  "label": 0
+	"conceptual_explanation": "Copper is a good thermal conductor.",
+	"label": 0
 }
 ```
 
