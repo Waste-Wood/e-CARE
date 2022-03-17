@@ -2,7 +2,7 @@
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-#### Brief Introduction
+### Brief Introduction
 Understanding causality has vital importance for various Natural Language Processing (NLP) applications. Beyond the labeled instances, conceptual explanations of the causality can provide deep understanding of the causal fact to facilitate the causal reasoning process. We present a human-annotated explainable CAusal REasoning dataset (e-CARE), which contains over 20K causal reasoning questions, together with natural language formed explanations of the causal questions. The original paper is availiable at: 
 
 The following provides an instance from the e-CARE dataset:
@@ -17,7 +17,7 @@ The following provides an instance from the e-CARE dataset:
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-#### Data Format
+### Data Format
 
 There are three versions of e-CARE dataset: **<font color=Red>Causal Reasoning</font>**, <font color=Blue>**Explanation Generation**</font> and **<font color=Green>Full</font>**.
 
@@ -68,7 +68,7 @@ The full version of e-CARE provides all the information which can be used for bo
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-#### Statistics
+### Statistics
 
 * The question type distribution
 
@@ -102,7 +102,7 @@ The full version of e-CARE provides all the information which can be used for bo
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-#### Dataset, Training & Evaluation
+### Dataset, Training & Evaluation
 
 To train and evaluate the model, the complete training and dev set can be downloaded at:
 The causal question of testing set is provided in: 
@@ -110,27 +110,29 @@ To evaluate the model performance on test set, you need upload the results to:
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-#### Baseline Results
+### Baseline Results
 
 On this basis, we introduce two tasks:
 
 + Causal Reasoning Task
-  The causal reasoning task is a multiple-choice task: given a premise event, one needs to choose a more plausible hypothesis from two candidates, so that the premise and the correct hypothesis can form into a valid causal fact.
 
-  | Model            | Dev   | Test  |
-  | ---------------- | ----- | ----- |
-  | Bart-base        | 73.03 | 71.65 |
-  | Bert-base-cased  | 75.47 | 75.38 |
-  | RoBERTa-base     | 70.64 | 70.73 |
-  | XLNet-base-cased | 75.61 | 74.58 |
-  | ALBERT           | 73.97 | 74.60 |
-  | GPT              | 67.59 | 68.15 |
-  | GPT-2            | 70.36 | 69.51 |
+The causal reasoning task is a multiple-choice task: given a premise event, one needs to choose a more plausible hypothesis from two candidates, so that the premise and the correct hypothesis can form into a valid causal fact.
+
+| Model            | Dev   | Test  |
+| ---------------- | ----- | ----- |
+| Bart-base        | 73.03 | 71.65 |
+| Bert-base-cased  | 75.47 | 75.38 |
+| RoBERTa-base     | 70.64 | 70.73 |
+| XLNet-base-cased | 75.61 | 74.58 |
+| ALBERT           | 73.97 | 74.60 |
+| GPT              | 67.59 | 68.15 |
+| GPT-2            | 70.36 | 69.51 |
 
 
 
 + Explanation Generation Task
-  It requires the model to generate a free-text-formed explanation for a given causal fact (composed of a premise and the corresponding correct hypothesis).
+
+It requires the model to generate a free-text-formed explanation for a given causal fact (composed of a premise and the corresponding correct hypothesis).
 
 | Model      | BLEU-1 | BLEU-2 | BLEU-3 | BLEU-4 | Rouge-1 | Rouge-2 | Rouge-l | PPL   |
 | ---------- | ------ | ------ | ------ | ------ | ------- | ------- | ------- | ----- |
@@ -141,7 +143,7 @@ On this basis, we introduce two tasks:
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-#### Potential Future Directions
+### Potential Future Directions
 
 ##### Serve as a Causality Knowledge Base
 
@@ -149,12 +151,12 @@ Causal knowledge is critical for various NLP applications. The causality knowled
 
 We have made exploration by applying transfer learning by first finetuning a BERT model on e-CARE, then adapting the e-CARE-enhanced model (denoted as BERT_E) on a causal extraction task EventStoryLine [1], two causal reasoning tasks BECauSE 2.0 [2] and COPA [3], as well as a commonsense reasoning dataset CommonsenseQA[4]. The results are shown in the table below. We observe that the additional training process on e-CARE can consistently increase the model performance on all four tasks. This indicates the potential of e-CARE in providing necessary causality information for promoting causal-related tasks in multiple domains.
 
-  |Dataset  | Metric | BERT | BERT_E| 
-  |---------|--------|------|-------|
-  |EventStoryLine 0.9 | F1 (%)    | 66.5 | 68.1 |
-  |BECauSE 2.1        | Accu. (%) | 76.8 | 81.0 |
-  |COPA               | Accu. (%) | 70.4 | 75.4 |
-  |CommonsenseQA      | Accu. (%) | 52.6 | 56.4 |
+|Dataset  | Metric | BERT | BERT_E|
+|---------|:------:|:----:|:-----:|
+|EventStoryLine 0.9 | F1 (%)    | 66.5 | 68.1 |
+|BECauSE 2.1        | Accu. (%) | 76.8 | 81.0 |
+|COPA               | Accu. (%) | 70.4 | 75.4 |
+|CommonsenseQA      | Accu. (%) | 52.6 | 56.4 |
 
 ##### Abductive Reasoning
 
