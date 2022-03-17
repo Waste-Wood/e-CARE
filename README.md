@@ -72,11 +72,11 @@ The full version of e-CARE provides all the information which can be used for bo
 
 * The question type distribution
 
-|        | Train  | Test  |  Dev  | Total |
-| :----: | :----: | :---: | :---: | :---: |
-| Cause  | 7,617  | 2,176 | 1,088 | 10881 |
-| Effect | 7,311  | 2,088 | 1,044 | 10443 |
-| Total  | 14,928 | 4,264 | 2,132 | 21324 |
+| Ask-for | Train  | Test  |  Dev  | Total |
+| :-----: | :----: | :---: | :---: | :---: |
+|  Cause  | 7,617  | 2,176 | 1,088 | 10881 |
+| Effect  | 7,311  | 2,088 | 1,044 | 10443 |
+|  Total  | 14,928 | 4,264 | 2,132 | 21324 |
 
 * The label distribution
 
@@ -170,7 +170,22 @@ For example, as the following figure shows, one may have an observation that C1:
 <!-- <style>table {margin: auto;}</style>
  -->
 
+
+
+#### Citation
+
+If you want to cite our  dataset and paper, you can use these BibTex:
+
+```bibtext
+@inproceedings{
+
+}
+```
+
+
+
 #### References
+
 [1] Caselli T, Vossen P. The event storyline corpus: A new benchmark for causal and temporal relation extraction[C]//Proceedings of the Events and Stories in the News Workshop. 2017: 77-86.
 
 [2] Dunietz J, Levin L, Carbonell J G. The BECauSE corpus 2.0: Annotating causality and overlapping relations[C]//Proceedings of the 11th Linguistic Annotation Workshop. 2017: 95-104.
@@ -178,3 +193,4 @@ For example, as the following figure shows, one may have an observation that C1:
 [3] Roemmele M, Bejan C A, Gordon A S. Choice of Plausible Alternatives: An Evaluation of Commonsense Causal Reasoning[C]//AAAI spring symposium: logical formalizations of commonsense reasoning. 2011: 90-95.
 
 [4] Talmor A, Herzig J, Lourie N, et al. CommonsenseQA: A Question Answering Challenge Targeting Commonsense Knowledge[C]//Proceedings of the 2019 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies, Volume 1 (Long and Short Papers). 2019: 4149-4158.
+
