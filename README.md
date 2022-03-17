@@ -153,12 +153,12 @@ We have made exploration by applying transfer learning by first finetuning a BER
 
 |Dataset  | Metric | BERT | BERT<sub>**E**</sub> |
 |---------|:------:|:----:|:-----:|
-|EventStoryLine 0.9 $^*$ | F1 (%)    | 66.5 | 68.1 |
+|EventStoryLine 0.9 <sup>*</sup> | F1 (%)    | 66.5 | 68.1 |
 |BECauSE 2.1        | Accu. (%) | 76.8 | 81.0 |
 |COPA               | Accu. (%) | 70.4 | 75.4 |
 |CommonsenseQA      | Accu. (%) | 52.6 | 56.4 |
 
-$^*$ Only the intra-sentence event pairs are kept for experiment, and the cause event precedes the effect event is ensured. The train, dev and test sets are split randomly.
+<sup>*</sup> Only the intra-sentence event pairs are kept for experiment, and the cause event precedes the effect event is ensured. The train, dev and test sets are split randomly.
 
 ##### Abductive Reasoning
 
