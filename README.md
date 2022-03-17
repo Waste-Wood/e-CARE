@@ -104,9 +104,8 @@ The full version of e-CARE provides all the information which can be used for bo
 
 ### Dataset, Training & Evaluation
 
-To train and evaluate the model, the complete training and dev set can be downloaded at:
-The causal question of testing set is provided in: 
-To evaluate the model performance on test set, you need upload the results to:
+To train and evaluate the model, the complete training and dev set can be downloaded at: [e-CARE](https://github.com/Waste-Wood/e-CARE/files/8242580/e-CARE.zip)
+The causal question of testing set is a blind set, you should follow [this]() instruction to get the performace of your model.
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -170,9 +169,9 @@ For example, as the following figure shows, one may have an observation that C1:
 <!-- <style>table {margin: auto;}</style>
  -->
 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-
-#### Citation
+### Citation
 
 If you want to cite our  dataset and paper, you can use these BibTex:
 
