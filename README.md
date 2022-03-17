@@ -1,8 +1,6 @@
-### e-CARE: a New Dataset for Exploring Explainable Causal Reasoning
+# e-CARE: a New Dataset for Exploring Explainable Causal Reasoning
 
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-### Brief Introduction
+## 1. Brief Introduction
 Understanding causality has vital importance for various Natural Language Processing (NLP) applications. Beyond the labeled instances, conceptual explanations of the causality can provide deep understanding of the causal fact to facilitate the causal reasoning process. We present a human-annotated explainable CAusal REasoning dataset (e-CARE), which contains over 20K causal reasoning questions, together with natural language formed explanations of the causal questions. The original paper is availiable at: 
 
 The following provides an instance from the e-CARE dataset:
@@ -15,13 +13,13 @@ The following provides an instance from the e-CARE dataset:
 | Hypothesis 2           | The copper block keeps the same. (<font color=Red>&#x2716;</font>) |
 | Conceptual Explanation | Copper is a good thermal conductor.                          |
 
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-### Data Format
+
+## 2. Data Format
 
 We provide three versions of e-CARE dataset: **<font color=Red>Causal Reasoning</font>**, <font color=Blue>**Explanation Generation**</font> and **<font color=Green>Full</font>**.
 
-* <font color=Red>**Causal Reasoning**</font>: Causal Reasoning Task
+#### 2.1 <font color=Red>**Causal Reasoning**</font>: Causal Reasoning Task
 
 A multiple-choice causal reasoning question consists of a premise and two hypotheses, and one of the hypotheses can form a valid causal fact with the premise. Each instance of <font color=Red>**Causal Reasoning**</font> (`./dataset/Causal_Reasoning`) is a line in `./dataset/Causal_Reasoning/train.jsonl` or `./dataset/Causal_Reasoning/dev.jsonl`,  each line is in json format, python package `jsonlines` can handle this format. The keys and values of a line dict are list as follows:
 
@@ -36,7 +34,7 @@ A multiple-choice causal reasoning question consists of a premise and two hypoth
 } 
 ```
 
-* <font color=Blue>**Explanation Generation**</font>: Conceptual Explanation Generation Task
+#### 2.2 <font color=Blue>**Explanation Generation**</font>: Conceptual Explanation Generation Task
 
 The conceptual explanation is about the essential condition that enables the existence of the causal fact. For example, as the above instance shows, the explanation points out the nature of copper that Copper is a good thermal conductor, so that holding copper on fire will make fingers feel burnt immediately.  Each instance of <font color=Blue>**Explanation Generation**</font> (`./dataset/Explanation_Generation`) is a line in `./dataset/Explanation_Generation/train.jsonl` or `./dataset/Explanation_Generation/dev.jsonl`, each line is in json format, the keys and values of a line are list as follows:
 
@@ -49,7 +47,7 @@ The conceptual explanation is about the essential condition that enables the exi
 }
 ```
 
-* **<font color=Green>Full</font>**: Causal Reasoning & Explanation Generation
+#### 2.3 **<font color=Green>Full</font>**: Causal Reasoning & Explanation Generation
 
 The full version of e-CARE provides all the information which can be used for both causal reasoning and explanation generation tasks. Each line in `./dataset/train_full.jsonl` or `./dataset/dev.jsonl` is in json format, keys and values in a line are list as follows:
 
@@ -65,12 +63,11 @@ The full version of e-CARE provides all the information which can be used for bo
 }
 ```
 
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-### Statistics
+## 3. Statistics
 
-* The question type distribution
+#### 3.1 The question type distribution
 
 | Ask-for | Train  | Test  |  Dev  | Total |
 | :-----: | :----: | :---: | :---: | :---: |
@@ -78,14 +75,14 @@ The full version of e-CARE provides all the information which can be used for bo
 | Effect  | 7,311  | 2,088 | 1,044 | 10443 |
 |  Total  | 14,928 | 4,264 | 2,132 | 21324 |
 
-* The label distribution
+#### 3.2 The label distribution
 
 |      | Train | Test | Dev  |
 | ---- | ----- | ---- | ---- |
 | 0    | 7463  | 2132 | 1066 |
 | 1    | 7465  | 2132 | 1066 |
 
-* Average length of cause, effect, wrong hypothesis and conceptual explanation
+#### 3.3 Average length of cause, effect, wrong hypothesis and conceptual explanation
 
 |                        | Overall | Train | Test | Dev  |
 | ---------------------- | ------- | ----- | ---- | ---- |
@@ -100,21 +97,21 @@ The full version of e-CARE provides all the information which can be used for bo
 | ------- | ----- | ---- | ---- |
 | 13048   | 10491 | 3814 | 2012 |
 
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-### Dataset, Training & Evaluation
+
+## 4. Dataset, Training & Evaluation
 
 To train and evaluate the model, the complete training and dev set can be downloaded at: [e-CARE](https://github.com/Waste-Wood/e-CARE/files/8242580/e-CARE.zip)
 
 The causal question of testing set is a blind set, you should follow [this]() instruction to get the performace of your model.
 
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-### Baseline Results
+
+## 5. Baseline Results
 
 On this basis, we introduce two tasks:
 
-+ Causal Reasoning Task
+#### 5.1 Causal Reasoning Task
 
 The causal reasoning task is a multiple-choice task: given a premise event, one needs to choose a more plausible hypothesis from two candidates, so that the premise and the correct hypothesis can form into a valid causal fact.
 
@@ -128,9 +125,7 @@ The causal reasoning task is a multiple-choice task: given a premise event, one 
 | GPT              | 67.59 | 68.15 |
 | GPT-2            | 70.36 | 69.51 |
 
-
-
-+ Explanation Generation Task
+#### 5.2 Explanation Generation Task
 
 It requires the model to generate a free-text-formed explanation for a given causal fact (composed of a premise and the corresponding correct hypothesis).
 
@@ -143,9 +138,9 @@ It requires the model to generate a free-text-formed explanation for a given cau
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-### Potential Future Directions
+## 6. Potential Future Directions
 
-#### Serve as a Causality Knowledge Base
+#### 6.1 Serve as a Causality Knowledge Base
 
 Causal knowledge is critical for various NLP applications. The causality knowledge provided by e-CARE can be used as a resource to boost model performance on other causal-related tasks. 
 
@@ -160,7 +155,7 @@ We have made exploration by applying transfer learning by first finetuning a BER
 
 <sup>*</sup> Only the intra-sentence event pairs are kept for experiment, and the cause event precedes the effect event is ensured. The train, dev and test sets are split randomly.
 
-#### Abductive Reasoning
+#### 6.2 Abductive Reasoning
 
 Previous literature concluded the explanation generation process as an **abductive reasoning** process, and highlighted the importance of the abdutive explanation generation, as it may interact with the causal reasoning process to promote the understanding of causal mechanism, and increase the efficiency and reliability of causal reasoning.
 
@@ -174,7 +169,7 @@ For example, as the following figure shows, one may have an observation that C1:
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-### Citation
+## 7. Citation
 
 If you want to cite our  dataset and paper, you can use these BibTex:
 
@@ -186,7 +181,7 @@ If you want to cite our  dataset and paper, you can use these BibTex:
 
 
 
-#### References
+## References
 
 <div id='anchor1'>[1] Caselli T, Vossen P. The event storyline corpus: A new benchmark for causal and temporal relation extraction[C]//Proceedings of the Events and Stories in the News Workshop. 2017: 77-86.</div>
 
