@@ -1,9 +1,7 @@
-# e-CARE: a New Dataset for Exploring Explainable Causal Reasoning
+### e-CARE: a New Dataset for Exploring Explainable Causal Reasoning
 
-## Brief Introduction
+#### Brief Introduction
 Understanding causality has vital importance for various Natural Language Processing (NLP) applications. Beyond the labeled instances, conceptual explanations of the causality can provide deep understanding of the causal fact to facilitate the causal reasoning process. We present a human-annotated explainable CAusal REasoning dataset (e-CARE), which contains over 20K causal reasoning questions, together with natural language formed explanations of the causal questions. The original paper is availiable at: 
-
-
 
 The following provides an instance from the e-CARE dataset:
 
@@ -17,7 +15,7 @@ The following provides an instance from the e-CARE dataset:
 
 
 
-## Data Format
+#### Data Format
 
 There are three versions of e-CARE dataset: **<font color=Red>Causal Reasoning</font>**, <font color=Blue>**Explanation Generation**</font> and **<font color=Green>Full</font>**.
 
@@ -68,7 +66,7 @@ The full version of e-CARE provides all the information which can be used for bo
 
 
 
-## Basic Statistics
+#### Statistics
 
 * The question type distribution
 
@@ -102,7 +100,7 @@ The full version of e-CARE provides all the information which can be used for bo
 
 
 
-## Dataset, Training & Evaluation
+#### Dataset, Training & Evaluation
 
 To train and evaluate the model, the complete training and dev set can be downloaded at:
 The causal question of testing set is provided in: 
@@ -110,7 +108,7 @@ To evaluate the model performance on test set, you need upload the results to:
 
 
 
-## Baseline Results
+#### Baseline Results
 
 On this basis, we introduce two tasks:
 
@@ -141,9 +139,9 @@ On this basis, we introduce two tasks:
 
 
 
-## Potential Future Directions
+#### Potential Future Directions
 
-### Serve as a Causality Knowledge Base
+##### Serve as a Causality Knowledge Base
 
 Causal knowledge is critical for various NLP applications. The causality knowledge provided by e-CARE can be used as a resource to boost model performance on other causal-related tasks. 
 
@@ -156,7 +154,7 @@ We have made exploration by applying transfer learning by first finetuning a BER
   |COPA               | Accu. (%) | 70.4 | 75.4 |
   |CommonsenseQA      | Accu. (%) | 52.6 | 56.4 |
 
-### Abductive Reasoning
+##### Abductive Reasoning
 
 Previous literature concluded the explanation generation process as an **abductive reasoning** process, and highlighted the importance of the abdutive explanation generation, as it may interact with the causal reasoning process to promote the understanding of causal mechanism, and increase the efficiency and reliability of causal reasoning.
 
@@ -168,7 +166,7 @@ For example, as the following figure shows, one may have an observation that C1:
 <!-- <style>table {margin: auto;}</style>
  -->
 
-## References
+#### References
 [1] Caselli T, Vossen P. The event storyline corpus: A new benchmark for causal and temporal relation extraction[C]//Proceedings of the Events and Stories in the News Workshop. 2017: 77-86.
 
 [2] Dunietz J, Levin L, Carbonell J G. The BECauSE corpus 2.0: Annotating causality and overlapping relations[C]//Proceedings of the 11th Linguistic Annotation Workshop. 2017: 95-104.
