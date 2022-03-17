@@ -145,7 +145,7 @@ It requires the model to generate a free-text-formed explanation for a given cau
 
 ### Potential Future Directions
 
-##### Serve as a Causality Knowledge Base
+#### Serve as a Causality Knowledge Base
 
 Causal knowledge is critical for various NLP applications. The causality knowledge provided by e-CARE can be used as a resource to boost model performance on other causal-related tasks. 
 
@@ -160,7 +160,7 @@ We have made exploration by applying transfer learning by first finetuning a BER
 
 <sup>*</sup> Only the intra-sentence event pairs are kept for experiment, and the cause event precedes the effect event is ensured. The train, dev and test sets are split randomly.
 
-##### Abductive Reasoning
+#### Abductive Reasoning
 
 Previous literature concluded the explanation generation process as an **abductive reasoning** process, and highlighted the importance of the abdutive explanation generation, as it may interact with the causal reasoning process to promote the understanding of causal mechanism, and increase the efficiency and reliability of causal reasoning.
 
