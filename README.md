@@ -1,5 +1,7 @@
 ### e-CARE: a New Dataset for Exploring Explainable Causal Reasoning
 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 #### Brief Introduction
 Understanding causality has vital importance for various Natural Language Processing (NLP) applications. Beyond the labeled instances, conceptual explanations of the causality can provide deep understanding of the causal fact to facilitate the causal reasoning process. We present a human-annotated explainable CAusal REasoning dataset (e-CARE), which contains over 20K causal reasoning questions, together with natural language formed explanations of the causal questions. The original paper is availiable at: 
 
@@ -13,7 +15,7 @@ The following provides an instance from the e-CARE dataset:
 | Hypothesis 2           | The copper block keeps the same. (<font color=Red>&#x2716;</font>) |
 | Conceptual Explanation | Copper is a good thermal conductor.                          |
 
-
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 #### Data Format
 
@@ -63,7 +65,7 @@ The full version of e-CARE provides all the information which can be used for bo
 }
 ```
 
-
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 #### Statistics
@@ -98,7 +100,7 @@ The full version of e-CARE provides all the information which can be used for bo
 | ------- | ----- | ---- | ---- |
 | 13048   | 10491 | 3814 | 2012 |
 
-
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 #### Dataset, Training & Evaluation
 
@@ -106,7 +108,7 @@ To train and evaluate the model, the complete training and dev set can be downlo
 The causal question of testing set is provided in: 
 To evaluate the model performance on test set, you need upload the results to:
 
-
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 #### Baseline Results
 
@@ -136,7 +138,7 @@ On this basis, we introduce two tasks:
 | RNN        | 43.25  | 18.20  | 6.76   | 4.16   | 20.79   | 2.20    | 20.85   | 33.84 |
 | Multi-Task | 56.32  | 35.96  | 26.47  | 22.36  | 35.70   | 12.57   | 34.88   | 6.64  |
 
-
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 #### Potential Future Directions
