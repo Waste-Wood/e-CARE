@@ -92,7 +92,7 @@ The full version of e-CARE provides all the information which can be used for bo
 | Conceptual Explanation | 7.63    | 7.62  | 7.60 | 7.77 |
 | Cause                  | 8.51    | 8.51  | 8.47 | 8.56 |
 | Effect                 | 8.34    | 8.33  | 8.38 | 8.31 |
-| Distractor Option      | 8.14    | 8.14  | 8.10 | 8.21 |
+| Wrong Hypothesis       | 8.14    | 8.14  | 8.10 | 8.21 |
 
 * Number of conceptual explanations
 
@@ -105,6 +105,7 @@ The full version of e-CARE provides all the information which can be used for bo
 ### Dataset, Training & Evaluation
 
 To train and evaluate the model, the complete training and dev set can be downloaded at: [e-CARE](https://github.com/Waste-Wood/e-CARE/files/8242580/e-CARE.zip)
+
 The causal question of testing set is a blind set, you should follow [this]() instruction to get the performace of your model.
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -148,14 +149,16 @@ It requires the model to generate a free-text-formed explanation for a given cau
 
 Causal knowledge is critical for various NLP applications. The causality knowledge provided by e-CARE can be used as a resource to boost model performance on other causal-related tasks. 
 
-We have made exploration by applying transfer learning by first finetuning a BERT model on e-CARE, then adapting the e-CARE-enhanced model (denoted as BERT_E) on a causal extraction task EventStoryLine [1], two causal reasoning tasks BECauSE 2.0 [2] and COPA [3], as well as a commonsense reasoning dataset CommonsenseQA[4]. The results are shown in the table below. We observe that the additional training process on e-CARE can consistently increase the model performance on all four tasks. This indicates the potential of e-CARE in providing necessary causality information for promoting causal-related tasks in multiple domains.
+We have made exploration by applying transfer learning by first finetuning a BERT model on e-CARE, then adapting the e-CARE-enhanced model (denoted as BERT$_\textbf{E}$) on a causal extraction task EventStoryLine [<sup>[1]</sup>](#anchor1), two causal reasoning tasks BECauSE 2.0 [2] and COPA [3], as well as a commonsense reasoning dataset CommonsenseQA[4]. The results are shown in the table below. We observe that the additional training process on e-CARE can consistently increase the model performance on all four tasks. This indicates the potential of e-CARE in providing necessary causality information for promoting causal-related tasks in multiple domains.
 
-|Dataset  | Metric | BERT | BERT_E|
+|Dataset  | Metric | BERT | BERT$_\textbf{E}$ |
 |---------|:------:|:----:|:-----:|
-|EventStoryLine 0.9 | F1 (%)    | 66.5 | 68.1 |
+|EventStoryLine 0.9 $^*$ | F1 (%)    | 66.5 | 68.1 |
 |BECauSE 2.1        | Accu. (%) | 76.8 | 81.0 |
 |COPA               | Accu. (%) | 70.4 | 75.4 |
 |CommonsenseQA      | Accu. (%) | 52.6 | 56.4 |
+
+$^*$ Only the intra-sentence event pairs are kept for experiment, and the cause event precedes the effect event is ensured. The train, dev and test sets are split randomly.
 
 ##### Abductive Reasoning
 
@@ -185,11 +188,11 @@ If you want to cite our  dataset and paper, you can use these BibTex:
 
 #### References
 
-[1] Caselli T, Vossen P. The event storyline corpus: A new benchmark for causal and temporal relation extraction[C]//Proceedings of the Events and Stories in the News Workshop. 2017: 77-86.
+<div id='anchor1'>[1] Caselli T, Vossen P. The event storyline corpus: A new benchmark for causal and temporal relation extraction[C]//Proceedings of the Events and Stories in the News Workshop. 2017: 77-86.</div>
 
-[2] Dunietz J, Levin L, Carbonell J G. The BECauSE corpus 2.0: Annotating causality and overlapping relations[C]//Proceedings of the 11th Linguistic Annotation Workshop. 2017: 95-104.
+<div id='anchor2'>[2] Dunietz J, Levin L, Carbonell J G. The BECauSE corpus 2.0: Annotating causality and overlapping relations[C]//Proceedings of the 11th Linguistic Annotation Workshop. 2017: 95-104.</div>
 
-[3] Roemmele M, Bejan C A, Gordon A S. Choice of Plausible Alternatives: An Evaluation of Commonsense Causal Reasoning[C]//AAAI spring symposium: logical formalizations of commonsense reasoning. 2011: 90-95.
+<div id='anchor3'>[3] Roemmele M, Bejan C A, Gordon A S. Choice of Plausible Alternatives: An Evaluation of Commonsense Causal Reasoning[C]//AAAI spring symposium: logical formalizations of commonsense reasoning. 2011: 90-95.</div>
 
-[4] Talmor A, Herzig J, Lourie N, et al. CommonsenseQA: A Question Answering Challenge Targeting Commonsense Knowledge[C]//Proceedings of the 2019 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies, Volume 1 (Long and Short Papers). 2019: 4149-4158.
+<div id='anchor4'>[4] Talmor A, Herzig J, Lourie N, et al. CommonsenseQA: A Question Answering Challenge Targeting Commonsense Knowledge[C]//Proceedings of the 2019 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies, Volume 1 (Long and Short Papers). 2019: 4149-4158.</div>
 
