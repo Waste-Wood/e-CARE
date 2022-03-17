@@ -19,7 +19,7 @@ The following provides an instance from the e-CARE dataset:
 
 ### Data Format
 
-There are three versions of e-CARE dataset: **<font color=Red>Causal Reasoning</font>**, <font color=Blue>**Explanation Generation**</font> and **<font color=Green>Full</font>**.
+We provide three versions of e-CARE dataset: **<font color=Red>Causal Reasoning</font>**, <font color=Blue>**Explanation Generation**</font> and **<font color=Green>Full</font>**.
 
 * <font color=Red>**Causal Reasoning**</font>: Causal Reasoning Task
 
@@ -149,9 +149,9 @@ It requires the model to generate a free-text-formed explanation for a given cau
 
 Causal knowledge is critical for various NLP applications. The causality knowledge provided by e-CARE can be used as a resource to boost model performance on other causal-related tasks. 
 
-We have made exploration by applying transfer learning by first finetuning a BERT model on e-CARE, then adapting the e-CARE-enhanced model (denoted as BERT$_\textbf{E}$) on a causal extraction task EventStoryLine [<sup>[1]</sup>](#anchor1), two causal reasoning tasks BECauSE 2.0 [2] and COPA [3], as well as a commonsense reasoning dataset CommonsenseQA[4]. The results are shown in the table below. We observe that the additional training process on e-CARE can consistently increase the model performance on all four tasks. This indicates the potential of e-CARE in providing necessary causality information for promoting causal-related tasks in multiple domains.
+We have made exploration by applying transfer learning by first finetuning a BERT model on e-CARE, then adapting the e-CARE-enhanced model (denoted as BERT<sub>**E**</sub>) on a causal extraction task EventStoryLine [<sup>[1]</sup>](#anchor1), two causal reasoning tasks BECauSE 2.0[<sup>[2]</sup>](#anchor2) and COPA [<sup>[3]</sup>](#anchor3), as well as a commonsense reasoning dataset CommonsenseQA[<sup>[4]</sup>](#anchor4). The results are shown in the table below. We observe that the additional training process on e-CARE can consistently increase the model performance on all four tasks. This indicates the potential of e-CARE in providing necessary causality information for promoting causal-related tasks in multiple domains.
 
-|Dataset  | Metric | BERT | BERT$_\textbf{E}$ |
+|Dataset  | Metric | BERT | BERT<sub>**E**</sub> |
 |---------|:------:|:----:|:-----:|
 |EventStoryLine 0.9 $^*$ | F1 (%)    | 66.5 | 68.1 |
 |BECauSE 2.1        | Accu. (%) | 76.8 | 81.0 |
