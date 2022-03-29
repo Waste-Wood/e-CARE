@@ -50,7 +50,7 @@ For running of your model, you should package the environment of your model into
   {
     "dev-0": "Copper is a good thermal conductor.",
     "dev-1": "Abalone are one of the first food items taken by otters as they move into new habitat.",
-    "dev-3": "Deserts are arid environments."
+    "dev-2": "Deserts are arid environments."
   }
   ```
 
