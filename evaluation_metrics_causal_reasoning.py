@@ -26,6 +26,7 @@ def evaluation_metrics(gold, predictions):
     return accuracy
 
 
+
 def main():
     prediction_file = sys.argv[1]
     gold_file = sys.argv[2]

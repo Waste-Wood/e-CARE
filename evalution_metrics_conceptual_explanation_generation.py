@@ -27,7 +27,7 @@ def evaluation_bleu(gold, predictions):
 
 
 def evaluation_rouge(golds, predictions):
-    rougel = 0
+    rouge_l = 0
     rouge = Rouge()
 
     for key in predictions:
@@ -39,11 +39,11 @@ def evaluation_rouge(golds, predictions):
 
         try:
             scores = rouge.get_scores(prediction, gold)
-            rougel += scores[0]['rouge-l']['r']
+            rouge_l += scores[0]['rouge-l']['r']
         except:
             continue
 
-    avg_rougel = rougel / len(golds)
+    avg_rougel = rouge_l / len(golds)
     return avg_rougel
 
 
