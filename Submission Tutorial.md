@@ -2,6 +2,11 @@
 
 We use [CodaLab Worksheets](http://worksheets.codalab.org/) for submitting your model to get the result on the test set, and put your model into the LederBoard. 
 
+There are two kinds of evalution scripts:
+
+* `evaluation_metrics_causal_reasoning.py`: the script for obtaining evalution metrics on causal reasoning task
+* `evaluation_metrics_conceptual_explanation_generation.py`: the script for obtaining evalution metrics on conceptual explanation generation task
+
 If your want to get the results on e-CARE test set, you should follow this instruction.
 
 
@@ -29,7 +34,7 @@ For running of your model, you should package the environment of your model into
 
 * Fourthly, type the prediction command in `Command` line (eg. `python prediction.py dev.jsonl prediction.json`) for running prediction on dev set. Once succcessful, a new term will produced in the worksheet.  And The format of the prediction file should be as follows:
 
-  * `Causal Reasoning`: each key is the id of the correponding example, each value is the prediction label `0` or `1`.
+  * `Causal Reasoning`: each key is the `index` of the correponding example, each value is the prediction label `0` or `1`.
 
   ```json
   {
@@ -39,7 +44,7 @@ For running of your model, you should package the environment of your model into
   }
   ```
 
-  * `Conceptual Explanation Generation`: each key is the id of the coresponding example, each value is the generated conceptual explanation.
+  * `Conceptual Explanation Generation`: each key is the `index` of the coresponding example, each value is the generated conceptual explanation.
 
   ```json
   {
