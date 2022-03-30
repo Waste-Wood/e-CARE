@@ -113,11 +113,7 @@ To train and evaluate the model, the complete training and dev set can be downlo
 
 #### 4.2 Evaluation
 
-<<<<<<< HEAD
 We provide two official evaluation scripts (`causal_reasoning.py` & `conceptual_explanation_generation.py`) for evaluation on causal reasoning and conceptual explanation generation tasks, respectivaly. For using the official evaluation scripts, you should output the predictions of your model into a json format file:
-=======
-We provide two official evaluation scripts (`evaluation_metrics_causal_reasoning.py` & `evaluation_metrics_conceptual_explanation_generation.py`) for the evaluation of causal reasoning and conceptual explanation generation tasks, respectively. For using the official evaluation scripts, you should output the predictions of your model into a json format file:
->>>>>>> 1124ba028af4902f7df911bbb73b4de7c0ea2c8b
 
 * `Causal Reasoning`: each key is the `index` of the corresponding example, each value is the prediction label `0` or `1`.
 
@@ -129,12 +125,7 @@ We provide two official evaluation scripts (`evaluation_metrics_causal_reasoning
   }
   ```
 
-
-<<<<<<< HEAD
 ​		Then using `python causal_reasoning.py prediction.json dev.jsonl` to get the accuracy on dev set.
-=======
-​		Then use `python evaluation_metrics_causal_reasoning.py prediction.json dev.jsonl` to get the accuracy on the dev set.
->>>>>>> 1124ba028af4902f7df911bbb73b4de7c0ea2c8b
 
 * `Conceptual Explanation Generation`: each key is the `index` of the corresponding example, each value is the generated conceptual explanation.
 
@@ -146,19 +137,11 @@ We provide two official evaluation scripts (`evaluation_metrics_causal_reasoning
   }
   ```
 
-<<<<<<< HEAD
 ​		Then using  `python conceptual_explanation_generation.py prediction.json dev.jsonl` to get the average BLEU and Rouge-l scores on dev set.
 
 #### 4.3 Obtaining Results on Test Set
 
 The test set of e-CARE is a blind set, you should follow [this](https://github.com/Waste-Wood/e-CARE/blob/main/Submission%20Tutorial.md) instruction to get the performace on test set. And the submitted models will be added to the [leaderboard](https://scir-sp.github.io) with the premission of the author.
-=======
-​		Then use `python evaluation_metrics_conceptual_explanation_generation.py prediction.json dev.jsonl` to get the average BLEU and Rouge-l scores on the dev set.
-
-#### 4.3 Obtaining Results on Test Set
-
-The test set of e-CARE is a blind set, you should follow [this](https://github.com/Waste-Wood/e-CARE/blob/main/Submission%20Tutorial.md) instruction to get the performance on the test set.
->>>>>>> 1124ba028af4902f7df911bbb73b4de7c0ea2c8b
 
 
 
