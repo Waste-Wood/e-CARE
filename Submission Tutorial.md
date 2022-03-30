@@ -58,7 +58,7 @@ For running of your model, you should package the environment of your model into
 
 
 
-### Step 4: Submission
+### Step 4: Submit
 
 Once you get the evaluation metrics on the dev set, you can submit your model to kxiong@ir.hit.edu.cn or ldu@hit.edu.cn, and the following terms should be included in the email.
 
