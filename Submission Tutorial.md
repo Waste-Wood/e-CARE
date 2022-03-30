@@ -1,6 +1,6 @@
 ## e-CARE Submission Tutorial
 
-We use [CodaLab Worksheets](http://worksheets.codalab.org/) for submitting your model to get the result on the test set, and put your model into the leaderboard. 
+We use [CodaLab Worksheets](http://worksheets.codalab.org/) for submitting your model to get the results on the test set, and put your model into the leaderboard. 
 
 There are two kinds of evaluation scripts:
 
