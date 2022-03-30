@@ -60,6 +60,8 @@ def main():
     fo = open('./evaluation_metrics_conceptual_explanation_generation.json', 'w')
 
     json.dump({"bleu": bleu_score, "rouge-l": rouge_l}, fo)
+    print("[Average BLEU]: {}".format(bleu_score))
+    print("[Rouge-l]: {}".format(rouge_l))
 
 
 if __name__ == '__main__':

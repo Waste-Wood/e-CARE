@@ -26,7 +26,6 @@ def evaluation_metrics(gold, predictions):
     return accuracy
 
 
-
 def main():
     prediction_file = sys.argv[1]
     gold_file = sys.argv[2]
@@ -38,6 +37,7 @@ def main():
 
     accuracy = evaluation_metrics(gold_labels, predictions)
     json.dump({"accuracy": accuracy}, fo)
+    print("[Accuracy]: {}".format(accuracy))
 
 
 if __name__ == '__main__':
