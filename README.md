@@ -25,7 +25,7 @@ A multiple-choice causal reasoning question consists of a premise and two hypoth
 
 ```json
 {
-  "id": "train-0",
+  "index": "train-0",
   "premise": "Tom holds a copper block by hand and heats it on fire.",
   "ask-for": "effect", 
   "hypothesis1": "His fingers feel burnt immediately.", 
@@ -40,7 +40,7 @@ The conceptual explanation is about the essential condition that enables the exi
 
 ```json
 {
-  "id": "train-0", 
+  "index": "train-0", 
   "cause": "Tom holds a copper block by hand and heats it on fire.",
   "effect": "His fingers feel burnt immediately.",
   "conceptual_explanation": "Copper is a good thermal conductor."
@@ -53,7 +53,7 @@ The full version of e-CARE provides all the information which can be used for bo
 
 ```json
 {
-  "id": "train-0",
+  "index": "train-0",
   "premise": "Tom holds a copper block by hand and heats it on fire.",
   "ask-for": "effect",
   "hypothesis1": "His fingers feel burnt immediately.",
