@@ -1,7 +1,7 @@
 # e-CARE: a New Dataset for Exploring Explainable Causal Reasoning
 
 ## 1. Brief Introduction
-Understanding causality has vital importance for various Natural Language Processing (NLP) applications. Beyond the labeled instances, conceptual explanations of the causality can provide deep understanding of the causal fact to facilitate the causal reasoning process. We present a human-annotated explainable CAusal REasoning dataset (e-CARE), which contains over 20K causal reasoning questions, together with natural language formed explanations of the causal questions. The original paper is availiable at: 
+Understanding causality has vital importance for various Natural Language Processing (NLP) applications. Beyond the labeled instances, conceptual explanations of the causality can provide a deep understanding of the causal fact to facilitate the causal reasoning process. We present a human-annotated explainable CAusal REasoning dataset (e-CARE), which contains over 20K causal reasoning questions, together with natural language formed explanations of the causal questions. The original paper is available at: 
 
 The following provides an instance from the e-CARE dataset:
 
@@ -27,7 +27,7 @@ We provide three versions of e-CARE dataset: **<font color=Red>Causal Reasoning<
 
 #### 2.1 <font color=Red>**Causal Reasoning**</font>: Causal Reasoning Task
 
-A multiple-choice causal reasoning question consists of a premise and two hypotheses, and one of the hypotheses can form a valid causal fact with the premise. Each instance of <font color=Red>**Causal Reasoning**</font> (`./dataset/Causal_Reasoning`) is a line in `./dataset/Causal_Reasoning/train.jsonl` or `./dataset/Causal_Reasoning/dev.jsonl`,  each line is in json format, python package `jsonlines` can handle this format. The keys and values of a line dict are list as follows:
+A multiple-choice causal reasoning question consists of a premise and two hypotheses, and one of the hypotheses can form a valid causal fact with the premise. Each instance of <font color=Red>**Causal Reasoning**</font> (`./dataset/Causal_Reasoning`) is a line in `./dataset/Causal_Reasoning/train.jsonl` or `./dataset/Causal_Reasoning/dev.jsonl`,  each line is in json format, python package `jsonlines` can handle this format. The keys and values of a line dict are listed as follows:
 
 ```json
 {
@@ -88,7 +88,7 @@ The full version of e-CARE provides all the information which can be used for bo
 | 0    | 7463  | 2132 | 1066 |
 | 1    | 7465  | 2132 | 1066 |
 
-#### 3.3 Average length of cause, effect, wrong hypothesis and conceptual explanation
+#### 3.3 Average lengths of cause, effect, wrong hypothesis, and conceptual explanation
 
 |                        | Overall | Train | Test | Dev  |
 | ---------------------- | ------- | ----- | ---- | ---- |
@@ -113,9 +113,13 @@ To train and evaluate the model, the complete training and dev set can be downlo
 
 #### 4.2 Evaluation
 
+<<<<<<< HEAD
 We provide two official evaluation scripts (`causal_reasoning.py` & `conceptual_explanation_generation.py`) for evaluation on causal reasoning and conceptual explanation generation tasks, respectivaly. For using the official evaluation scripts, you should output the predictions of your model into a json format file:
+=======
+We provide two official evaluation scripts (`evaluation_metrics_causal_reasoning.py` & `evaluation_metrics_conceptual_explanation_generation.py`) for the evaluation of causal reasoning and conceptual explanation generation tasks, respectively. For using the official evaluation scripts, you should output the predictions of your model into a json format file:
+>>>>>>> 1124ba028af4902f7df911bbb73b4de7c0ea2c8b
 
-* `Causal Reasoning`: each key is the `index` of the correponding example, each value is the prediction label `0` or `1`.
+* `Causal Reasoning`: each key is the `index` of the corresponding example, each value is the prediction label `0` or `1`.
 
   ```json
   {
@@ -126,9 +130,13 @@ We provide two official evaluation scripts (`causal_reasoning.py` & `conceptual_
   ```
 
 
+<<<<<<< HEAD
 ​		Then using `python causal_reasoning.py prediction.json dev.jsonl` to get the accuracy on dev set.
+=======
+​		Then use `python evaluation_metrics_causal_reasoning.py prediction.json dev.jsonl` to get the accuracy on the dev set.
+>>>>>>> 1124ba028af4902f7df911bbb73b4de7c0ea2c8b
 
-* `Conceptual Explanation Generation`: each key is the `index` of the coresponding example, each value is the generated conceptual explanation.
+* `Conceptual Explanation Generation`: each key is the `index` of the corresponding example, each value is the generated conceptual explanation.
 
   ```json
   {
@@ -138,11 +146,19 @@ We provide two official evaluation scripts (`causal_reasoning.py` & `conceptual_
   }
   ```
 
+<<<<<<< HEAD
 ​		Then using  `python conceptual_explanation_generation.py prediction.json dev.jsonl` to get the average BLEU and Rouge-l scores on dev set.
 
 #### 4.3 Obtaining Results on Test Set
 
 The test set of e-CARE is a blind set, you should follow [this](https://github.com/Waste-Wood/e-CARE/blob/main/Submission%20Tutorial.md) instruction to get the performace on test set. And the submitted models will be added to the [leaderboard](https://scir-sp.github.io) with the premission of the author.
+=======
+​		Then use `python evaluation_metrics_conceptual_explanation_generation.py prediction.json dev.jsonl` to get the average BLEU and Rouge-l scores on the dev set.
+
+#### 4.3 Obtaining Results on Test Set
+
+The test set of e-CARE is a blind set, you should follow [this](https://github.com/Waste-Wood/e-CARE/blob/main/Submission%20Tutorial.md) instruction to get the performance on the test set.
+>>>>>>> 1124ba028af4902f7df911bbb73b4de7c0ea2c8b
 
 
 
@@ -191,13 +207,13 @@ We have made exploration by applying transfer learning by first finetuning a BER
 |COPA               | Accu. (%) | 70.4 | 75.4 |
 |CommonsenseQA      | Accu. (%) | 52.6 | 56.4 |
 
-<sup>*</sup> Only the intra-sentence event pairs are kept for experiment, and the cause event precedes the effect event is ensured. The train, dev and test sets are split randomly.
+<sup>*</sup> Only the intra-sentence event pairs are kept for the experiment, and the cause event precedes the effect event is ensured. The train, dev and test sets are split randomly.
 
 #### 6.2 Abductive Reasoning
 
-Previous literature concluded the explanation generation process as an **abductive reasoning** process, and highlighted the importance of the abdutive explanation generation, as it may interact with the causal reasoning process to promote the understanding of causal mechanism, and increase the efficiency and reliability of causal reasoning.
+Previous literature concluded the explanation generation process as an **abductive reasoning** process, and highlighted the importance of the abductive explanation generation, as it may interact with the causal reasoning process to promote the understanding of the causal mechanism and increase the efficiency and reliability of causal reasoning.
 
-For example, as the following figure shows, one may have an observation that C1: *adding rock into hydrochloric acid* caused E1: *rock dissolved*. Through abductive reasoning, one may come up with a conceptual explanation for the observation that *acid is corrosive*. After that, one can confirm or rectify the explanation by experiments, or resorting to external references. In this way, new ideas about causality can be involved for understanding the observed causal fact. Then if the explanation is confirmed, it can be further utilized to support the causal reasoning process by helping to explain and validate other related causal facts, such as C2: *adding rust into sulphuric acid* may lead to E2: *rust dissolved*.  This analysis highlights the pivotal role of conceptual explanation in learning and inferring causality and the e-CARE dataset to provide causal explanations and support future research towards stronger human-like causal reasoning systems. 
+For example, as the following figure shows, one may have an observation that C1: *adding rock into hydrochloric acid* caused E1: *rock dissolved*. Through abductive reasoning, one may come up with a conceptual explanation for the observation that *acid is corrosive*. After that, one can confirm or rectify the explanation by experiments, or resorting to external references. In this way, new ideas about causality can be involved in understanding the observed causal fact. Then if the explanation is confirmed, it can be further utilized to support the causal reasoning process by helping to explain and validate other related causal facts, such as C2: *adding rust into sulphuric acid* may lead to E2: *rust dissolved*.  This analysis highlights the pivotal role of conceptual explanation in learning and inferring causality and the e-CARE dataset to provide causal explanations and support future research towards stronger human-like causal reasoning systems. 
 
 <div align=center>
 <img src="https://github.com/Waste-Wood/e-CARE/blob/main/pic_2.png" width="500" height="300">
@@ -209,7 +225,7 @@ For example, as the following figure shows, one may have an observation that C1:
 
 ## 7. Citation
 
-If you want to cite our  dataset and paper, you can use these BibTex:
+If you want to cite our  dataset and paper, you can use this BibTex:
 
 ```bibtext
 @inproceedings{
