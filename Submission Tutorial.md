@@ -54,11 +54,7 @@ For running your model, you should package the environment of your model into a 
   }
   ```
 
-<<<<<<< HEAD
 * Finally, create a new run, using the official evaluation script for get the evaluation metrics~(`python causal_reasoning.py prediction.json dev.jsonl`).
-=======
-* Finally, create a new run, using the official evaluation script to get the evaluation metrics~(`python evaluation_metrics_causal_reasoning.py prediction.json dev.jsonl`).
->>>>>>> 1124ba028af4902f7df911bbb73b4de7c0ea2c8b
 
 
 
