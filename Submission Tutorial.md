@@ -1,6 +1,6 @@
 ## e-CARE Submission Tutorial
 
-We use [CodaLab Worksheets](http://worksheets.codalab.org/) for submitting your model to get the results on the test set, and put your model into the leaderboard. 
+We use [CodaLab Worksheets](http://worksheets.codalab.org/) for submitting your model to get the results on the test set, and put the results onto the leaderboard. 
 
 There are two kinds of evaluation scripts:
 
@@ -8,7 +8,6 @@ There are two kinds of evaluation scripts:
 * `evaluation_metrics_conceptual_explanation_generation.py`: the script for obtaining evaluation metrics on conceptual explanation generation task
 
 If your want to get the results on the e-CARE test set, you should follow this instruction.
-
 
 
 ### Step 1: Get Ready
