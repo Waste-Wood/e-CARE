@@ -76,7 +76,7 @@
     --test "test.jsonl" \
     --model_name "bert" \
     --gpu "0" \
-    --batch_size 48 \
+    --batch_size 64 \
     --cuda True\
     --epochs 100 \
     --evaluation_step 250 \
