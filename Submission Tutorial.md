@@ -64,6 +64,6 @@ Once you get the evaluation metrics on the dev set, you can submit your model to
 * The full uuis of the dev set prediction `RUN`~(the term contains the prediction results on dev set in `Step 3`).
 * The name of the submitted model.
 * The task of your submitted model. (`Causal Reasoning` or `Conceptual Explanation Generation`)
-* The name of your intitute~(Optional).
+* The name of your institute~(Optional).
 * The URL of your paper~(Optional).
 
