@@ -2,11 +2,6 @@
 
 We use [CodaLab Worksheets](http://worksheets.codalab.org/) for submitting your model to get the results on the test set, and put the results onto the leaderboard. 
 
-There are two kinds of evaluation scripts:
-
-* `evaluation_metrics_causal_reasoning.py`: the script for obtaining evaluation metrics on causal reasoning task
-* `evaluation_metrics_conceptual_explanation_generation.py`: the script for obtaining evaluation metrics on conceptual explanation generation task
-
 If your want to get the results on the e-CARE test set, you should follow this instruction.
 
 
@@ -19,13 +14,13 @@ For running your model, you should package the environment of your model into a 
 ### Step 2: Upload Necessary Files
 
 * Firstly, you should create a new worksheet in [CodaLab Worksheets](http://worksheets.codalab.org/).
-* Secondly, upload necessary files (eg. trained model, prediction script, model framework, e-CARE dev set, evaluation script) via the `UPLOAD` button. (Compressing all the files into a zip file is recommended, CodaLab would unzip the file automatically once the upload is done.)
+* Secondly, upload necessary files (eg. trained model, prediction script, model framework, e-CARE dev set, evaluation script) via the `UPLOAD` button on the worksheet menu bar. (Compressing all the files into a zip file is recommended, CodaLab would unzip the file automatically once the upload is done.)
 
 
 
 ### Step 3: Get Results on e-CARE Dev Set with Official Evaluation Script
 
-* Firstly, create a new run through the `RUN` button.
+* Firstly, create a new run through the `RUN` button on the worksheet menu bar.
 
 * Secondly, add the dependencies and fill in the necessary information~(eg. name).
 
@@ -53,7 +48,11 @@ For running your model, you should package the environment of your model into a 
   }
   ```
 
-​		Finally, create a new run, using the official evaluation script for get the evaluation metrics~(`python causal_reasoning.py prediction.json dev.jsonl`).
+* Finally, In order to unify the format of input and output, you should use the official evaluation scripts for get the evaluation metrics (create a new `Run`, and type `python causal_reasoning.py prediction.json dev.jsonl` in the command line.). We provide two kinds of evaluation scripts:
+
+  * `causal_reasoning.py`: the script for obtaining evaluation metrics on causal reasoning task
+
+  * `conceptual_explanation_generation.py`: the script for obtaining evaluation metrics on conceptual explanation generation task
 
 
 
