@@ -14,13 +14,13 @@ For running your model, you should package the environment of your model into a 
 ### Step 2: Upload Necessary Files
 
 * Firstly, you should create a new worksheet in [CodaLab Worksheets](http://worksheets.codalab.org/).
-* Secondly, upload necessary files (eg. trained model, prediction script, model framework, e-CARE dev set, evaluation script) via the `UPLOAD` button on the worksheet menu bar. (Compressing all the files into a zip file is recommended, CodaLab would unzip the file automatically once the upload is done.)
+* Secondly, upload necessary files (eg. trained model, prediction script, model framework, e-CARE dev set, evaluation script) via the `UPLOAD` button on the CodaLab Worksheet menu bar. (Compressing all the files into a zip file is recommended, CodaLab would unzip the file automatically once the upload is done.)
 
 
 
 ### Step 3: Get Results on e-CARE Dev Set with Official Evaluation Script
 
-* Firstly, create a new run through the `RUN` button on the worksheet menu bar.
+* Firstly, create a new run through the `RUN` button on the CodaLab Worksheet menu bar.
 
 * Secondly, add the dependencies and fill in the necessary information~(eg. name).
 
