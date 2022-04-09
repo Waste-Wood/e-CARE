@@ -14,20 +14,15 @@ The following provides an instance from the e-CARE dataset:
 | Conceptual Explanation | Copper is a good thermal conductor.                          |
 
 
+## 2. Tasks based on e-CARE Dataset
 
-## 2. Leaderboard
+Based on the e-CARE dataset, we introduce two tasks for evaluating the performance of causal reasoning: 1. A **<font color=Red>Causal Reasoning</font>** Task, 2. A <font color=Blue>**Explanation Generation**</font> Task.
 
-You can refer to [e-CARE leaderboard](https://scir-sp.github.io) for more details.
-
-
-
-## 2. Data Format
-
-We provide three versions of e-CARE dataset: **<font color=Red>Causal Reasoning</font>**, <font color=Blue>**Explanation Generation**</font> and **<font color=Green>Full</font>**.
+<!-- and **<font color=Green>Full</font>**.-->
 
 #### 2.1 <font color=Red>**Causal Reasoning**</font>: Causal Reasoning Task
 
-A multiple-choice causal reasoning question consists of a premise and two hypotheses, and one of the hypotheses can form a valid causal fact with the premise. Each instance of <font color=Red>**Causal Reasoning**</font> (`./dataset/Causal_Reasoning`) is a line in `./dataset/Causal_Reasoning/train.jsonl` or `./dataset/Causal_Reasoning/dev.jsonl`,  each line is in json format, python package `jsonlines` can handle this format. The keys and values of a line dict are listed as follows:
+This task requires model to choose a correct hypothesis for a given premise from two candidates, so that the chosen hypothesis can form a valid causal fact with the premise. Each instance of <font color=Red>**Causal Reasoning**</font> (`./dataset/Causal_Reasoning`) is a line in `./dataset/Causal_Reasoning/train.jsonl` or `./dataset/Causal_Reasoning/dev.jsonl`,  each line is in json format, python package `jsonlines` can handle this format. The keys and values of a line dict are listed as follows:
 
 ```json
 {
@@ -42,7 +37,7 @@ A multiple-choice causal reasoning question consists of a premise and two hypoth
 
 #### 2.2 <font color=Blue>**Explanation Generation**</font>: Conceptual Explanation Generation Task
 
-The conceptual explanation is about the essential condition that enables the existence of the causal fact. For example, as the above instance shows, the explanation points out the nature of copper that Copper is a good thermal conductor, so that holding copper on fire will make fingers feel burnt immediately.  Each instance of <font color=Blue>**Explanation Generation**</font> (`./dataset/Explanation_Generation`) is a line in `./dataset/Explanation_Generation/train.jsonl` or `./dataset/Explanation_Generation/dev.jsonl`, each line is in json format, the keys and values of a line are list as follows:
+This task requires model to generate a explanation for a provided causal fact. For example, as the above instance shows, given the causal fact <*Cause*: Tom holds a copper block by hand and heats it on fire. *Effect*: His fingers feel burnt immediately.>, the cusal explanation generation task requires model to generate an explanation for the given causal fact. Each instance of <font color=Blue>**Explanation Generation**</font> (`./dataset/Explanation_Generation`) is a line in `./dataset/Explanation_Generation/train.jsonl` or `./dataset/Explanation_Generation/dev.jsonl`, each line is in json format, the keys and values of a line are list as follows:
 
 ```json
 {
@@ -53,7 +48,7 @@ The conceptual explanation is about the essential condition that enables the exi
 }
 ```
 
-#### 2.3 **<font color=Green>Full</font>**: Causal Reasoning & Explanation Generation
+<!-- #### 2.3 **<font color=Green>Full</font>**: Causal Reasoning & Explanation Generation
 
 The full version of e-CARE provides all the information which can be used for both causal reasoning and explanation generation tasks. Each line in `./dataset/train_full.jsonl` or `./dataset/dev.jsonl` is in json format, keys and values in a line are list as follows:
 
@@ -68,7 +63,7 @@ The full version of e-CARE provides all the information which can be used for bo
   "label": 0
 }
 ```
-
+ -->
 
 
 ## 3. Statistics
@@ -104,14 +99,13 @@ The full version of e-CARE provides all the information which can be used for bo
 | 13048   | 10491 | 3814 | 2012 |
 
 
+## 4. Dataset Download & Model Evaluation
 
-## 4. Dataset, Training & Evaluation
-
-#### 4.1 Dataset & Training
+#### 4.1 Dataset Download
 
 To train and evaluate the model, the complete training and dev set can be downloaded at: [e-CARE](https://github.com/Waste-Wood/e-CARE/files/8242580/e-CARE.zip)
 
-#### 4.2 Evaluation
+#### 4.2 Model Evaluation
 
 We provide two official evaluation scripts (`causal_reasoning.py` & `conceptual_explanation_generation.py`) for evaluation on causal reasoning and conceptual explanation generation tasks, respectivaly. For using the official evaluation scripts, you should output the predictions of your model into a json format file:
 
@@ -142,7 +136,6 @@ We provide two official evaluation scripts (`causal_reasoning.py` & `conceptual_
 #### 4.3 Obtaining Results on Test Set
 
 The test set of e-CARE is a blind set, you should follow [this](https://github.com/Waste-Wood/e-CARE/blob/main/Submission%20Tutorial.md) instruction to get the performace on test set. And the submitted models will be added to the [leaderboard](https://scir-sp.github.io) with the premission of the author.
-
 
 
 ## 5. Baseline Results
@@ -215,8 +208,6 @@ If you want to cite our  dataset and paper, you can use this BibTex:
 
 }
 ```
-
-
 
 ## References
 
