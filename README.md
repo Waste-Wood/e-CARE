@@ -217,8 +217,7 @@ If you want to cite our  dataset and paper, you can use this BibTex:
     address = "Dublin, Ireland",
     publisher = "Association for Computational Linguistics",
     url = "https://aclanthology.org/2022.acl-long.33",
-    pages = "432--446",
-    abstract = "Understanding causality has vital importance for various Natural Language Processing (NLP) applications. Beyond the labeled instances, conceptual explanations of the causality can provide deep understanding of the causal fact to facilitate the causal reasoning process. However, such explanation information still remains absent in existing causal reasoning resources. In this paper, we fill this gap by presenting a human-annotated explainable CAusal REasoning dataset (e-CARE), which contains over 20K causal reasoning questions, together with natural language formed explanations of the causal questions. Experimental results show that generating valid explanations for causal facts still remains especially challenging for the state-of-the-art models, and the explanation information can be helpful for promoting the accuracy and stability of causal reasoning models.",
+    pages = "432--446"
 }
 ```
 
