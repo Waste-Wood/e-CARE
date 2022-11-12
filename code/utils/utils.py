@@ -135,7 +135,8 @@ def quick_tokenize(data, hps):
     instances = []
     labels = []
     for example in data:
-        premise, a1, a2 = example['premise'], example['alternative1'], example['alternative2']
+        #print(example)
+        premise, a1, a2 = example['premise'], example['hypothesis1'], example['hypothesis2']
 
         if example['ask-for'] == 'cause':
             if not hps.hyp_only:
@@ -339,7 +340,7 @@ def evaluate_multi_task(model, dataloader_input, dataloader_output, hps):
 
 
 def load_data(path):
-    data = [json.laods(line) for line in open(path, 'r')]
+    data = [json.loads(line) for line in open(path, 'r')]
     return data
 
 
