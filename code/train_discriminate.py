@@ -38,7 +38,7 @@ def main():
     parser.add_argument('--gpu', type=str, default='0', help='Gpu ids for training')
     # parser.add_argument('--apex', type=bool, default=False, help='Whether to use half precision')
     parser.add_argument('--batch_size', type=int, default=10, help='batch_size for training and evaluation')
-    parser.add_argument('--shuffle', type=bool, default=True, help='whether to shuffle training data')
+    parser.add_argument('--shuffle', type=bool, default=False, help='whether to shuffle training data')
     parser.add_argument('--epochs', type=int, default=200, help='training iterations')
     # parser.add_argument('--evaluation_step', type=int, default=20,
     #                     help='when training for some steps, start evaluation')
@@ -99,8 +99,8 @@ def main():
     DEV = TensorDataset(dev_ids, dev_seg_ids, dev_mask, dev_labels, dev_length)
     TEST = TensorDataset(test_ids, test_seg_ids, test_mask, test_labels, test_length)
     train_dataloader = DataLoader(TRAIN, batch_size=hps.batch_size, shuffle=hps.shuffle, drop_last=False)
-    dev_dataloader = DataLoader(DEV, batch_size=hps.batch_size, shuffle=hps.shuffle, drop_last=False)
-    test_dataloader = DataLoader(TEST, batch_size=hps.batch_size, shuffle=hps.shuffle, drop_last=False)
+    dev_dataloader = DataLoader(DEV, batch_size=hps.batch_size, shuffle=False, drop_last=False)
+    test_dataloader = DataLoader(TEST, batch_size=hps.batch_size, shuffle=False, drop_last=False)
 
     # initialize model, optimizer, loss_function
     logger.info('[INFO] Loading pretrained model, setting optimizer and loss function')
