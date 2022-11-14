@@ -12,6 +12,7 @@ from torch.utils.data import TensorDataset, DataLoader
 from tqdm import trange
 import datetime
 import logging
+import wandb
 
 
 def main():
@@ -37,20 +38,29 @@ def main():
     parser.add_argument('--gpu', type=str, default='0', help='Gpu ids for training')
     # parser.add_argument('--apex', type=bool, default=False, help='Whether to use half precision')
     parser.add_argument('--batch_size', type=int, default=10, help='batch_size for training and evaluation')
-    parser.add_argument('--shuffle', type=bool, default=False, help='whether to shuffle training data')
+    parser.add_argument('--shuffle', type=bool, default=True, help='whether to shuffle training data')
     parser.add_argument('--epochs', type=int, default=200, help='training iterations')
-    parser.add_argument('--evaluation_step', type=int, default=20,
-                        help='when training for some steps, start evaluation')
+    # parser.add_argument('--evaluation_step', type=int, default=20,
+    #                     help='when training for some steps, start evaluation')
     parser.add_argument('--lr', type=float, default=1e-5, help='the learning rate of training')
     parser.add_argument('--set_seed', type=bool, default=True, help='Whether to fix the random seed')
     parser.add_argument('--seed', type=int, default=1024, help='fix the random seed for reproducible')
     parser.add_argument('--patient', type=int, default=10, help='the patient of early-stopping')
     parser.add_argument('--loss_func', type=str, default='BCE', help="loss function of output")
     parser.add_argument('--hyp_only', type=bool, default=False, help="If set True, Only send hypothesis into model")
+    parser.add_argument('--wandb', type=bool, default=True, help="If set True, log results to wandb")
     # parser.add_argument('--warmup_proportion', type=float, default=0.1, help='warmup settings')
 
     # parsing the hyper-parameters from command line and define logger
     hps = parser.parse_args()
+    if hps.wandb:
+        wandb.init(
+            project="anlp-causal", 
+            entity="specteross", 
+            config=hps, 
+            name=f"{hps.model_dir} loss{hps.loss_func} bs{hps.batch_size} lr{hps.lr}"
+        )
+    
     logger, formatter = define_logger()
     nowtime = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
     if hps.hyp_only:
@@ -120,9 +130,10 @@ def main():
         t = trange(len(train_dataloader))
         epoch_step = 0
         total_loss = 0
+        model.train()
         for i, batch in zip(t, train_dataloader):
             optimizer.zero_grad()
-            model.train()
+            
             if hps.cuda:
                 batch = tuple(term.cuda() for term in batch)
 
@@ -141,51 +152,53 @@ def main():
             loss.backward()
             optimizer.step()
 
-            if step % hps.evaluation_step == 0 and step != 0:
-                model.eval()
+        model.eval()
+        with torch.no_grad():
+            print(f'\nAfter {epoch+1} epoch of training... ')
+            logger.info("[Dev Evaluation] Strain Evaluation on Dev Set")
+            if hps.loss_func == 'CrossEntropy':
+                dev_accu, dev_exact_accu, dev_loss = evaluation(hps, dev_dataloader, model, loss_function)
+                print('\n')
+                logger.info("[Dev Metrics] Dev Soft Accuracy: \t{}".format(dev_accu))
+                logger.info("[Dev Metrics] Dev Exact Accuracy: \t{}".format(dev_exact_accu))
+            else:
+                dev_accu, dev_loss = evaluation(hps, dev_dataloader, model, loss_function)
+                print('\n')
+                logger.info("[Dev Metrics] Dev Accuracy: \t{}".format(dev_accu))
+            logger.info("[Dev Metrics] Dev Loss: \t{}".format(dev_loss))
+            if hps.wandb:
+                wandb.log({"epoch": epoch, "dev_accuracy": dev_accu, "dev_loss": dev_loss})
 
-                with torch.no_grad():
+            if dev_accu >= best_accuracy:
+                patient = 0
+                best_accuracy = dev_accu
+                logger.info("[Saving] Saving Model to {}".format(hps.save_dir))
+                if hps.hyp_only:
+                    torch.save(model, os.path.join(hps.save_dir, 'discriminate_'+hps.model_name + '_hyp'))
+                else:
+                    torch.save(model, os.path.join(hps.save_dir, 'discriminate_'+hps.model_name))
+                logger.info("[Test Evaluation] Strain Evaluation on Test Set")
+                if hps.loss_func == 'CrossEntropy':
+                    te_soft_accu, te_exact_accu, te_loss = evaluation(hps, test_dataloader, model, loss_function)
                     print('\n')
-                    logger.info("[Dev Evaluation] Strain Evaluation on Dev Set")
-                    if hps.loss_func == 'CrossEntropy':
-                        dev_accu, dev_exact_accu, dev_loss = evaluation(hps, dev_dataloader, model, loss_function)
-                        print('\n')
-                        logger.info("[Dev Metrics] Dev Soft Accuracy: \t{}".format(dev_accu))
-                        logger.info("[Dev Metrics] Dev Exact Accuracy: \t{}".format(dev_exact_accu))
-                    else:
-                        dev_accu, dev_loss = evaluation(hps, dev_dataloader, model, loss_function)
-                        print('\n')
-                        logger.info("[Dev Metrics] Dev Accuracy: \t{}".format(dev_accu))
-                    logger.info("[Dev Metrics] Dev Loss: \t{}".format(dev_loss))
+                    logger.info("[Test Metrics] Test Soft Accuracy: \t{}".format(te_soft_accu))
+                    logger.info("[Test Metrics] Test Exact Accuracy: \t{}".format(te_exact_accu))
+                else:
+                    te_accu, te_loss = evaluation(hps, test_dataloader, model, loss_function)
+                    print('\n')
+                    logger.info("[Test Metrics] Test Accuracy: \t{}".format(te_accu))
+                logger.info("[Test Metrics] Test Loss: \t{}".format(te_loss))
+                if hps.wandb:
+                    wandb.log({"epoch": epoch, "test_accuracy": te_accu, "test_loss": te_loss})
+            else:
+                patient += 1
 
-                    if dev_accu >= best_accuracy:
-                        patient = 0
-                        best_accuracy = dev_accu
-                        logger.info("[Saving] Saving Model to {}".format(hps.save_dir))
-                        if hps.hyp_only:
-                            torch.save(model, os.path.join(hps.save_dir, 'discriminate_'+hps.model_name + '_hyp'))
-                        else:
-                            torch.save(model, os.path.join(hps.save_dir, 'discriminate_'+hps.model_name))
-                        logger.info("[Test Evaluation] Strain Evaluation on Test Set")
-                        if hps.loss_func == 'CrossEntropy':
-                            te_soft_accu, te_exact_accu, te_loss = evaluation(hps, test_dataloader, model, loss_function)
-                            print('\n')
-                            logger.info("[Test Metrics] Test Soft Accuracy: \t{}".format(te_soft_accu))
-                            logger.info("[Test Metrics] Test Exact Accuracy: \t{}".format(te_exact_accu))
-                        else:
-                            te_accu, te_loss = evaluation(hps, test_dataloader, model, loss_function)
-                            print('\n')
-                            logger.info("[Test Metrics] Test Accuracy: \t{}".format(te_accu))
-                        logger.info("[Test Metrics] Test Loss: \t{}".format(te_loss))
-                    else:
-                        patient += 1
+            logger.info("[Patient] {}".format(patient))
 
-                    logger.info("[Patient] {}".format(patient))
-
-                    if patient >= hps.patient:
-                        logger.info("[INFO] Stopping Training by Early Stopping")
-                        stop_train = True
-                        break
+            if patient >= hps.patient:
+                logger.info("[INFO] Stopping Training by Early Stopping")
+                stop_train = True
+                break
             step += 1
 
         if stop_train:

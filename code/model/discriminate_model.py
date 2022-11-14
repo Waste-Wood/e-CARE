@@ -3,6 +3,7 @@ import torch
 from transformers import BertModel, BertConfig, RobertaModel, RobertaConfig, AlbertModel, AlbertConfig
 from transformers import OpenAIGPTConfig, OpenAIGPTModel, XLNetConfig, XLNetModel
 from transformers import BartConfig, BartForSequenceClassification
+from transformers import AutoConfig, AutoModelForSequenceClassification
 
 # class prediction_layer(nn.Module):
 #     def __init__(self):
@@ -28,9 +29,12 @@ class pretrained_model(nn.Module):
         elif hps.model_name == 'bart':
             self.config = BartConfig.from_pretrained(hps.model_dir)
             self.model = BartForSequenceClassification.from_pretrained(hps.model_dir)
-        else:
+        elif hps.model_name == 'xlnet':
             self.config = XLNetConfig.from_pretrained(hps.model_dir)
             self.model = XLNetModel.from_pretrained(hps.model_dir, mem_len=1024)
+        else: 
+            self.model = AutoModelForSequenceClassification.from_pretrained(hps.model_dir)
+            self.config = AutoConfig(hps.model_dir)
 
         if hps.loss_func == 'CrossEntropy':
             self.classification = nn.Linear(self.config.hidden_size, 2)
@@ -42,7 +46,7 @@ class pretrained_model(nn.Module):
     def forward(self, input_ids, attention_mask, seg_ids=None, length=None):
 
         # model list: Bert, ALBERT, GPT
-        if self.model_name in ['bert', 'albert', 'gpt']:
+        if self.model_name in ['bert', 'albert', 'gpt', 'deberta']:
             output = self.model(input_ids=input_ids, attention_mask=attention_mask, token_type_ids=seg_ids)
 
         # model list: Roberta, XLNet
@@ -50,7 +54,7 @@ class pretrained_model(nn.Module):
             output = self.model(input_ids=input_ids, attention_mask=attention_mask)
 
         # get the cls token for classification
-        if self.model_name in ['bert', 'roberta', 'albert']:
+        if self.model_name in ['bert', 'roberta', 'albert', 'deberta']:
             cls_token = output[1]   # Bert, Roberta, ALBERT
         elif self.model_name == 'gpt':
             cls_token = output[0][range(output[0].shape[0]), length.cpu().tolist(), :]   # GPT

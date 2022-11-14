@@ -1,6 +1,6 @@
 import pickle
 from transformers import BertTokenizer, RobertaTokenizer, AlbertTokenizer, OpenAIGPTTokenizer, XLNetTokenizer
-from transformers import GPT2Tokenizer, BartTokenizer
+from transformers import GPT2Tokenizer, BartTokenizer, AutoTokenizer
 import torch
 import logging
 import sys
@@ -81,8 +81,10 @@ def tokenize_multi_choices(data, hps):
         tokenizer.pad_token = tokenizer.unk_token
     elif hps.model_name == 'bart':
         tokenizer = BartTokenizer.from_pretrained(hps.model_dir)
-    else:
+    elif hps.model_name == 'xlnet':
         tokenizer = XLNetTokenizer.from_pretrained(hps.model_dir)
+    else:
+        tokenizer = AutoTokenizer.from_pretrained(hps.model_dir)
     
     instances = []
     labels = []
@@ -448,7 +450,7 @@ def evaluation(hps, dataloader, model, loss_function, mode='train'):
             count += 1
         else:
             continue
-    return count/len(true_labels), loss
+    return count/len(true_labels), loss/len(true_labels)
 
 
 def define_logger():
