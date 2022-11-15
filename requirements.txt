@@ -8,3 +8,4 @@ wandb
 nltk
 spacy
 ftfy
+protobuf<=3.20.1
