@@ -1,5 +1,5 @@
 import argparse
-from utils.utils import load_data, quick_tokenize, evaluation, define_logger
+from utils.utils import load_data, quick_tokenize, evaluation, define_logger, causal_reasoning_error_analysis
 import random
 import numpy as np
 import torch
@@ -179,6 +179,11 @@ def main():
                 print('\n')
                 logger.info("[Test Metrics] Test Accuracy: \t{}".format(te_accu))
                 logger.info("[Test Metrics] Test Loss: \t{}".format(te_loss))
+
+                # Save down error analysis file to e-Care/error_analysis folder
+                causal_reasoning_error_analysis(hps, test_data, test_dataloader, model, loss_function, file_name_modifier=f"epoch{epoch+1}")
+
+                # Log metrics to wandb
                 if hps.wandb:
                     wandb.log({"epoch": epoch, "test_accuracy": te_accu, "test_loss": te_loss})
             else:

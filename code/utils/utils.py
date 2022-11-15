@@ -17,6 +17,11 @@ import pdb
 import torch.nn as nn
 import json
 
+import os
+import pandas as pd
+
+# For error analysis
+OUTPUT_LOG_DIR = '../error_analysis'; os.makedirs(OUTPUT_LOG_DIR, exist_ok=True)
 
 def tokenize_data(data, model_path, model_name):
     # tokenizer = BertTokenizer(vocab_file=model_path+'/'+'vocab.txt')
@@ -454,7 +459,6 @@ def evaluation(hps, dataloader, model, loss_function, mode='train'):
         predict_labels = torch.argmax(a, 1).tolist()
         true_labels = torch.argmax(t_a, 1).tolist()
     
-    
     count = 0
     for i in range(len(predict_labels)):
         if predict_labels[i] == true_labels[i]:
@@ -462,6 +466,121 @@ def evaluation(hps, dataloader, model, loss_function, mode='train'):
         else:
             continue
     return count/len(true_labels), loss/len(true_labels)
+
+
+def build_labels_and_predictions_for_different_datasets(hps, labels, predictions): 
+    if hps.data_name == 'commonsenseqa':
+        a1 = torch.FloatTensor(predictions[::5]).unsqueeze(1)
+        a2 = torch.FloatTensor(predictions[1::5]).unsqueeze(1)
+        a3 = torch.FloatTensor(predictions[2::5]).unsqueeze(1)
+        a4 = torch.FloatTensor(predictions[3::5]).unsqueeze(1)
+        a5 = torch.FloatTensor(predictions[4::5]).unsqueeze(1)
+        a = torch.cat((a1, a2, a3, a4, a5), dim=1)
+
+        t_a1 = torch.FloatTensor(labels[::5]).unsqueeze(1)
+        t_a2 = torch.FloatTensor(labels[1::5]).unsqueeze(1)
+        t_a3 = torch.FloatTensor(labels[2::5]).unsqueeze(1)
+        t_a4 = torch.FloatTensor(labels[3::5]).unsqueeze(1)
+        t_a5 = torch.FloatTensor(labels[4::5]).unsqueeze(1)
+        t_a = torch.cat((t_a1, t_a2, t_a3, t_a4, t_a5), dim=1)
+        predict_labels = torch.argmax(a, 1).tolist()
+        true_labels = torch.argmax(t_a, 1).tolist()
+
+    elif hps.data_name == 'because':
+        # softmax = nn.Softmax(1)
+        a = predictions
+        t_a = labels
+        predict_labels = torch.sigmoid(torch.FloatTensor(a)).tolist()
+        true_labels = t_a
+        for k, p in enumerate(predict_labels):
+            if p >= 0.5:
+                predict_labels[k] = 1
+            else:
+                predict_labels[k] = 0
+
+    elif hps.data_name == 'event_storyline':
+        a = predictions
+        predict_labels = torch.sigmoid(torch.FloatTensor(a)).tolist()
+        predict_labels = [1 if p >= 0.5 else 0 for p in predict_labels]
+        t_a = labels
+        tp, tn, fp, fn = 0, 0, 0, 0
+        for k in range(len(t_a)):
+            if labels[k] == 1 and predict_labels[k] == 1:
+                tp += 1
+            elif labels[k] == 1 and predict_labels[k] == 0:
+                fn += 1
+            elif labels[k] == 0 and predict_labels[k] == 1:
+                fp += 1
+            else:
+                tn += 1
+        precision = tp / (tp+fp)
+        recall = tp / (tp+fn)
+        f1 = 2*precision*recall/(precision+recall)
+        # return f1, 0
+        true_labels = t_a
+
+    else:
+        a1 = torch.FloatTensor(predictions[::2]).unsqueeze(1)
+        a2 = torch.FloatTensor(predictions[1::2]).unsqueeze(1)
+        a = torch.cat((a1, a2), dim=1)
+        t_a1 = torch.FloatTensor(labels[::2]).unsqueeze(1)
+        t_a2 = torch.FloatTensor(labels[1::2]).unsqueeze(1)
+        t_a = torch.cat((t_a1, t_a2), dim=1)
+        predict_labels = torch.argmax(a, 1).tolist()
+        true_labels = torch.argmax(t_a, 1).tolist()
+    
+    return true_labels, predict_labels
+
+
+def causal_reasoning_error_analysis(hps, data, dataloader, model, loss_function, file_name_modifier=''):
+    """ WARNING: ASSUMES THAT THE DATALOADER didn't shuffle the data """
+    if hps.shuffle: 
+        raise Exception("Sorry, currently doesn't work with shuffled data")
+
+    predictions = []
+    labels = []
+    loss = 0
+    model.eval()
+    for batch in dataloader:
+        if hps.cuda:
+            batch = tuple(term.cuda() for term in batch)
+
+        sent, seg_id, atten_mask, tmp_labels, tmp_length = batch
+        probs = model(sent, atten_mask, seg_ids=seg_id, length=tmp_length)
+
+        if hps.loss_func == "CrossEntropy":
+            loss += loss_function(probs, tmp_labels).item()
+            predictions += probs.cpu().tolist()
+        else: 
+            loss += loss_function(probs.squeeze(), tmp_labels.float()).item()
+            predictions += probs.squeeze().cpu().tolist()
+        
+        labels += tmp_labels.cpu().numpy().tolist()
+
+    true_labels, predict_labels = build_labels_and_predictions_for_different_datasets(hps, labels, predictions)
+    count = 0
+
+    assert len(true_labels) == len(predict_labels), "Number of predicted labels and true labels don't match!"
+    assert len(true_labels) == len(data), "Number of data instances and true labels don't match!"
+
+    error_analysis_data = []
+
+    for i in range(len(predict_labels)):
+        data_instance = data[i]
+        assert data_instance['label'] == true_labels[i]
+        error_analysis_data.append([data_instance['index'], data_instance['premise'], data_instance['ask-for'], data_instance['hypothesis1'], data_instance['hypothesis2'], true_labels[i], predict_labels[i]])
+
+        if predict_labels[i] == true_labels[i]:
+            count += 1
+        else:
+            continue
+    error_analysis_data.append(['', '', '', '', '', f"Accuracy: {count/len(true_labels)}", f"Loss: {loss/len(true_labels)}"])
+    error_analysis_df = pd.DataFrame(error_analysis_data, columns=["data_instance", "premise", "ask-for", "hypothesis1", "hypothesis2", "true_label", "predicted_label"])
+
+    file_name = f"""results_{hps.model_dir}_{file_name_modifier}_{datetime.datetime.now().strftime("%y%m%d%H:%M:%S")}.tsv"""
+    file_path = os.path.join(OUTPUT_LOG_DIR, file_name)
+    print(f"Save error analysis results to {file_path}...")
+    error_analysis_df.to_csv(file_path, sep='\t', index=False)
 
 
 def define_logger():
@@ -711,7 +830,7 @@ def gpt2_evaluate(model, length, data_loader, hps):
 
             # gold_tokens = tokenizer.convert_ids_to_tokens(gen_ids[i])
             # gold_text = remove_special_tokens(tokenizer.convert_tokens_to_string(gold_tokens))
-
+            print(f"BLEU:\n  Gold: {[gold_text[i]]}\n  Predicted: {generated_text[i].split('.')[0]+'.'}\n  BLEU: {bleu([gold_text[i]], generated_text[i].split('.')[0]+'.', [1, 0, 0, 0])}\n")
             bleu1 += bleu([gold_text[i]], generated_text[i].split('.')[0]+'.', [1, 0, 0, 0])
             bleu2 += bleu([gold_text[i]], generated_text[i].split('.')[0]+'.', [0, 1, 0, 0])
             bleu3 += bleu([gold_text[i]], generated_text[i].split('.')[0]+'.', [0, 0, 1, 0])
