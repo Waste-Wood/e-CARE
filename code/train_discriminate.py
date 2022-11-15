@@ -48,7 +48,7 @@ def main():
     parser.add_argument('--patient', type=int, default=10, help='the patient of early-stopping')
     parser.add_argument('--loss_func', type=str, default='BCE', help="loss function of output")
     parser.add_argument('--hyp_only', type=bool, default=False, help="If set True, Only send hypothesis into model")
-    parser.add_argument('--wandb', type=bool, default=True, help="If set True, log results to wandb")
+    parser.add_argument('--wandb', type=bool, default=False, help="If set True, log results to wandb")
     # parser.add_argument('--warmup_proportion', type=float, default=0.1, help='warmup settings')
 
     # parsing the hyper-parameters from command line and define logger
@@ -58,7 +58,7 @@ def main():
             project="anlp-causal", 
             entity="specteross", 
             config=hps, 
-            name=f"{hps.model_dir} loss{hps.loss_func} bs{hps.batch_size} lr{hps.lr}"
+            name=f"{hps.model_dir} loss-{hps.loss_func} bs-{hps.batch_size} lr-{hps.lr} seed-{hps.seed}{' shuffle' if hps.shuffle else ''}"
         )
     
     logger, formatter = define_logger()
@@ -140,6 +140,7 @@ def main():
             sent, seg_id, atten_mask, labels, length = batch
             probs = model(sent, atten_mask, seg_ids=seg_id, length=length)
 
+            print(f"Size of probs: {probs.size()}")
             if hps.loss_func == 'CrossEntropy':
                 loss = loss_function(probs, labels)
             else:
@@ -156,15 +157,10 @@ def main():
         with torch.no_grad():
             print(f'\nAfter {epoch+1} epoch of training... ')
             logger.info("[Dev Evaluation] Strain Evaluation on Dev Set")
-            if hps.loss_func == 'CrossEntropy':
-                dev_accu, dev_exact_accu, dev_loss = evaluation(hps, dev_dataloader, model, loss_function)
-                print('\n')
-                logger.info("[Dev Metrics] Dev Soft Accuracy: \t{}".format(dev_accu))
-                logger.info("[Dev Metrics] Dev Exact Accuracy: \t{}".format(dev_exact_accu))
-            else:
-                dev_accu, dev_loss = evaluation(hps, dev_dataloader, model, loss_function)
-                print('\n')
-                logger.info("[Dev Metrics] Dev Accuracy: \t{}".format(dev_accu))
+            
+            dev_accu, dev_loss = evaluation(hps, dev_dataloader, model, loss_function)
+            print('\n')
+            logger.info("[Dev Metrics] Dev Accuracy: \t{}".format(dev_accu))
             logger.info("[Dev Metrics] Dev Loss: \t{}".format(dev_loss))
             if hps.wandb:
                 wandb.log({"epoch": epoch, "dev_accuracy": dev_accu, "dev_loss": dev_loss})
@@ -178,15 +174,10 @@ def main():
                 else:
                     torch.save(model, os.path.join(hps.save_dir, 'discriminate_'+hps.model_name))
                 logger.info("[Test Evaluation] Strain Evaluation on Test Set")
-                if hps.loss_func == 'CrossEntropy':
-                    te_soft_accu, te_exact_accu, te_loss = evaluation(hps, test_dataloader, model, loss_function)
-                    print('\n')
-                    logger.info("[Test Metrics] Test Soft Accuracy: \t{}".format(te_soft_accu))
-                    logger.info("[Test Metrics] Test Exact Accuracy: \t{}".format(te_exact_accu))
-                else:
-                    te_accu, te_loss = evaluation(hps, test_dataloader, model, loss_function)
-                    print('\n')
-                    logger.info("[Test Metrics] Test Accuracy: \t{}".format(te_accu))
+                
+                te_accu, te_loss = evaluation(hps, test_dataloader, model, loss_function)
+                print('\n')
+                logger.info("[Test Metrics] Test Accuracy: \t{}".format(te_accu))
                 logger.info("[Test Metrics] Test Loss: \t{}".format(te_loss))
                 if hps.wandb:
                     wandb.log({"epoch": epoch, "test_accuracy": te_accu, "test_loss": te_loss})

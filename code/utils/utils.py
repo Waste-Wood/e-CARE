@@ -1,6 +1,6 @@
 import pickle
 from transformers import BertTokenizer, RobertaTokenizer, AlbertTokenizer, OpenAIGPTTokenizer, XLNetTokenizer
-from transformers import GPT2Tokenizer, BartTokenizer, AutoTokenizer
+from transformers import GPT2Tokenizer, BartTokenizer, AutoTokenizer, DebertaV2Tokenizer
 import torch
 import logging
 import sys
@@ -83,6 +83,8 @@ def tokenize_multi_choices(data, hps):
         tokenizer = BartTokenizer.from_pretrained(hps.model_dir)
     elif hps.model_name == 'xlnet':
         tokenizer = XLNetTokenizer.from_pretrained(hps.model_dir)
+    elif hps.model_name == 'deberta':
+        tokenizer = DebertaV2Tokenizer.from_pretrained(hps.model_dir)
     else:
         tokenizer = AutoTokenizer.from_pretrained(hps.model_dir)
     
@@ -133,6 +135,8 @@ def quick_tokenize(data, hps):
         tokenizer = BartTokenizer.from_pretrained(hps.model_dir)
     elif hps.model_name == 'xlnet':
         tokenizer = XLNetTokenizer.from_pretrained(hps.model_dir)
+    elif hps.model_name == 'deberta':
+        tokenizer = DebertaV2Tokenizer.from_pretrained(hps.model_dir)        
     else:
         tokenizer = AutoTokenizer.from_pretrained(hps.model_dir)
 
@@ -359,7 +363,7 @@ def evaluation(hps, dataloader, model, loss_function, mode='train'):
 
         if mode == 'train':
             sent, seg_id, atten_mask, tmp_labels, tmp_length = batch
-            probs = model(sent, atten_mask, seg_ids=seg_id, length=tmp_length).squeeze()
+            probs = model(sent, atten_mask, seg_ids=seg_id, length=tmp_length)
         else:
             sent, atten_mask, tmp_labels = batch
             _, probs = model(sent, atten_mask)
@@ -372,12 +376,13 @@ def evaluation(hps, dataloader, model, loss_function, mode='train'):
         #     labels += tmp_labels.cpu().tolist()
         #     loss += loss_function(probs, tmp_labels.float()).item()
         # else:
-        predictions += probs.squeeze().cpu().tolist()
         if hps.loss_func == "CrossEntropy":
             loss += loss_function(probs, tmp_labels).item()
+            predictions += probs.cpu().tolist()
         else: 
-            loss += loss_function(probs, tmp_labels.float()).item()
-
+            loss += loss_function(probs.squeeze(), tmp_labels.float()).item()
+            predictions += probs.squeeze().cpu().tolist()
+        
         labels += tmp_labels.cpu().numpy().tolist()
 
     # if hps.loss_func == 'CrossEntropy':
