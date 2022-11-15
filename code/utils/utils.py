@@ -131,8 +131,10 @@ def quick_tokenize(data, hps):
         tokenizer.pad_token = tokenizer.unk_token
     elif hps.model_name == 'bart':
         tokenizer = BartTokenizer.from_pretrained(hps.model_dir)
-    else:
+    elif hps.model_name == 'xlnet':
         tokenizer = XLNetTokenizer.from_pretrained(hps.model_dir)
+    else:
+        tokenizer = AutoTokenizer.from_pretrained(hps.model_dir)
 
     instances = []
     labels = []

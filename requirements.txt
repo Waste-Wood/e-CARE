@@ -6,3 +6,5 @@ nlp
 sentencepiece
 wandb
 nltk
+spacy
+ftfy
