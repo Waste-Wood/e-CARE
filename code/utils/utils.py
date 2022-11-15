@@ -373,7 +373,11 @@ def evaluation(hps, dataloader, model, loss_function, mode='train'):
         #     loss += loss_function(probs, tmp_labels.float()).item()
         # else:
         predictions += probs.squeeze().cpu().tolist()
-        loss += loss_function(probs, tmp_labels.float()).item()
+        if hps.loss_func == "CrossEntropy":
+            loss += loss_function(probs, tmp_labels).item()
+        else: 
+            loss += loss_function(probs, tmp_labels.float()).item()
+
         labels += tmp_labels.cpu().numpy().tolist()
 
     # if hps.loss_func == 'CrossEntropy':
