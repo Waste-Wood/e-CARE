@@ -3,7 +3,7 @@ from utils.utils import load_data, define_logger, tokenize_gen, evaluate_gpt2, g
 import random
 import numpy as np
 import torch
-from model.generatively_model import gpt2_generate, bart_generate
+from model.generatively_model import gpt2_generate
 from transformers import AdamW, GPT2LMHeadModel
 import sys
 import torch.nn as nn

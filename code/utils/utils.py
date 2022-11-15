@@ -213,7 +213,7 @@ def compute_ppl(hps, model, data):
         total_length = 0
         for example in data:
             input_text = example['cause'] + ' ' + example['effect']
-            truth = example['general_truth']
+            truth = example['conceptual_explanation']
             inputs = tokenizer(input_text)
             input_ids = torch.LongTensor(inputs['input_ids']).unsqueeze(0).cuda()
             attention_mask = torch.LongTensor(inputs['attention_mask']).unsqueeze(0).cuda()
@@ -495,9 +495,10 @@ def tokenize_gen(data, hps):
             inputs.append(seq1)
             labels.append(seq2)
         elif hps.model_name == 'gpt2':
-            inputs.append([example['cause']+' '+example['effect'], example['general_truth']])
+            #print(example)
+            inputs.append([example['cause']+' '+example['effect'], example['conceptual_explanation']])
             premise.append(example['cause']+' '+example['effect'])
-            labels.append(example['general_truth'])
+            labels.append(example['conceptual_explanation'])
         else:
             return
 
