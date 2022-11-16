@@ -3,7 +3,7 @@ from utils.utils import load_data, define_logger, tokenize_gen, evaluate_gpt2, g
 import random
 import numpy as np
 import torch
-from model.generatively_model import gpt2_generate, bart_generate
+from model.generatively_model import gpt2_generate
 from transformers import AdamW, GPT2LMHeadModel, GPT2Tokenizer
 import sys
 import torch.nn as nn
@@ -18,6 +18,7 @@ from nltk import bleu
 import csv
 import copy
 import torch.nn.functional as F
+import wandb
 
 
 class gpt2_multi_task(nn.Module):
@@ -132,12 +133,12 @@ def tokenization(data, hps):
 
     for example in data:
         if example['ask-for'] == 'cause':
-            inputs.append([example['alternative1'], example['premise']])
-            inputs.append([example['alternative2'], example['premise']])
+            inputs.append([example['hypothesis1'], example['premise']])
+            inputs.append([example['hypothesis2'], example['premise']])
         else:
-            inputs.append([example['premise'], example['alternative1']])
-            inputs.append([example['premise'], example['alternative2']])
-        truth += [example['general_truth']] * 2
+            inputs.append([example['premise'], example['hypothesis1']])
+            inputs.append([example['premise'], example['hypothesis2']])
+        truth += [example['conceptual_explanation']] * 2
         labels += [0, 1] if example['label'] == 1 else [1, 0]
 
     outputs = tokenizer(inputs, return_length=True)
@@ -358,7 +359,7 @@ def evaluate(hps, model, dataloader, loss_function, loss_function2, optimizer):
 
     return count / len(true_labels), bleu1 / len(true_labels), bleu2 / len(true_labels), bleu3 / len(
         true_labels), bleu4 / len(true_labels), rouge1r / len(true_labels), rouge2r / len(true_labels), rougelr / len(
-        true_labels), loss, attack_count / len(true_labels), attack_loss
+        true_labels), loss / len(true_labels), attack_count / len(true_labels), attack_loss / len(true_labels)
 
 
 def compute_ppl(hps, model, data):
@@ -368,10 +369,10 @@ def compute_ppl(hps, model, data):
     total_length = 0
     for example in data:
         if example['ask-for'] == 'cause':
-            input_text = (example['alternative1'] + ' ' + example['premise']) if example['label'] == 0 else (example['alternative2'] + ' ' + example['premise'])
+            input_text = (example['hypothesis1'] + ' ' + example['premise']) if example['label'] == 0 else (example['hypothesis2'] + ' ' + example['premise'])
         else:
-            input_text = (example['premise'] + ' ' + example['alternative1']) if example['label'] == 0 else (example['premise'] + ' ' + example['alternative2'])
-        truth = example['general_truth']
+            input_text = (example['premise'] + ' ' + example['hypothesis1']) if example['label'] == 0 else (example['premise'] + ' ' + example['hypothesis2'])
+        truth = example['conceptual_explanation']
         inputs = tokenizer(input_text)
         input_ids = torch.LongTensor(inputs['input_ids']+[50256]).unsqueeze(0).cuda()
         attention_mask = torch.LongTensor(inputs['attention_mask']+[1]).unsqueeze(0).cuda()
@@ -435,9 +436,17 @@ def main():
     parser.add_argument('--early_stopping', type=bool, default=False)
     parser.add_argument('--do_sample', type=bool, default=True)
     parser.add_argument('--attack_rate', type=float, default=0.015)
+    parser.add_argument('--wandb', type=bool, default=True, help="If set True, log results to wandb")
 
     # parsing the hyper-parameters from command line and define logger
     hps = parser.parse_args()
+    if hps.wandb:
+        wandb.init(
+            project="anlp-causal-generation", 
+            entity="specteross", 
+            config=hps, 
+            name=f"{hps.model_dir} loss-BCE bs-{hps.batch_size} lr-{hps.lr} seed-{hps.seed}{' shuffle' if hps.shuffle else ''} mode-{hps.mode}"
+        )
     logger, formatter = define_logger()
     # nowtime = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
     log_path = os.path.join(hps.log_dir, hps.mode + '_' + hps.model_name + '.txt')
@@ -552,61 +561,65 @@ def main():
             loss.backward()
             optimizer.step()
 
-            if step % hps.evaluation_step == 0 and step != 0:
-                model.eval()
+        model.eval()
 
-                # with torch.no_grad():
-                print('\n')
-                logger.info("[Dev Evaluation] Start Evaluation on Dev Set")
-                evaluate_output = evaluate(hps, model, dev_dataloader, loss_function, loss_function2, optimizer)
-                dev_ppl = compute_ppl(hps, model, dev_data)
-                logger.info("[Dev Metrics] Dev Perplexity: \t{}".format(dev_ppl))
-                print('\n')
-                logger.info("[Dev Metrics] Dev Accuracy: \t{}".format(evaluate_output[0]))
-                logger.info("[DEV Metrics] Dev Attack Accuracy: \t{}".format(evaluate_output[-2]))
-                logger.info(
-                    "[Dev Metrics] Dev BLEU:\t({}, {}, {}, {})".format(evaluate_output[1], evaluate_output[2],
-                                                                       evaluate_output[3], evaluate_output[4]))
-                logger.info("[Dev Metrics] Dev Discriminate Loss: \t{}".format(evaluate_output[-3]))
-                logger.info("[Dev Metrics] Dev Discriminate Attack Loss: \t{}".format(evaluate_output[-1]))
-                logger.info(
-                    "[Dev Metrics] Dev Rouge Recall:\t({}, {}, {})".format(evaluate_output[5], evaluate_output[6],
-                                                                           evaluate_output[7]))
+        # with torch.no_grad():
+        print('\n')
+        logger.info("[Dev Evaluation] Start Evaluation on Dev Set")
+        dev_accuracy, dev_bleu1, dev_bleu2, dev_bleu3, dev_bleu4, dev_rouge1,dev_rouge2, dev_rougel, dev_loss, dev_attack_accuracy, dev_attack_loss = \
+            evaluate(hps, model, dev_dataloader, loss_function, loss_function2, optimizer)
+        dev_ppl = compute_ppl(hps, model, dev_data)
+        logger.info("[Dev Metrics] Dev Perplexity: \t{}".format(dev_ppl))
+        print('\n')
+        logger.info("[Dev Metrics] Dev Accuracy: \t{}".format(dev_accuracy))
+        logger.info("[DEV Metrics] Dev Attack Accuracy: \t{}".format(dev_attack_accuracy))
+        logger.info(
+            "[Dev Metrics] Dev BLEU:\t({}, {}, {}, {})".format(dev_bleu1, dev_bleu2, dev_bleu3, dev_bleu4))
+        logger.info("[Dev Metrics] Dev Discriminate Loss: \t{}".format(dev_loss))
+        logger.info("[Dev Metrics] Dev Discriminate Attack Loss: \t{}".format(dev_attack_loss))
+        logger.info(
+            "[Dev Metrics] Dev Rouge Recall:\t({}, {}, {})".format(dev_rouge1, dev_rouge2, dev_rougel))
 
-                if evaluate_output[0] >= best_accuracy:
-                    patient = 0
-                    best_accuracy = evaluate_output[0]
-                    logger.info("[Saving] Saving Model to {}".format(hps.save_dir))
-                    # torch.save(model, os.path.join(hps.save_dir, '{}_{}'.format('generated', hps.model_name)))
-                    logger.info("[Test Evaluation] Start Evaluation on Test Set")
+        if hps.wandb:
+            wandb.log({
+                "epoch": epoch, "dev_accuracy": dev_accuracy, "dev_loss": dev_loss, "dev_perplexity": dev_ppl,
+                "dev_bleu1": dev_bleu1, "dev_bleu2": dev_bleu2, "dev_bleu3": dev_bleu3, "dev_bleu4": dev_bleu4, 
+                "dev_rouge1": dev_rouge1, "dev_rouge2": dev_rouge2, "dev_rouge-l": dev_rougel, 
+            })
 
-                    test_output = evaluate(hps, model, test_dataloader, loss_function, loss_function2, optimizer)
-                    test_ppl = compute_ppl(hps, model, test_data)
-                    logger.info("[Test Metrics] Test Perplexity: \t{}".format(test_ppl))
+        if dev_accuracy >= best_accuracy:
+            patient = 0
+            best_accuracy = dev_accuracy
+            logger.info("[Saving] Saving Model to {}".format(hps.save_dir))
+            # torch.save(model, os.path.join(hps.save_dir, '{}_{}'.format('generated', hps.model_name)))
+            logger.info("[Test Evaluation] Start Evaluation on Test Set")
 
-                    print('\n')
-                    logger.info("[Test Metrics] Test Accuracy: \t{}".format(test_output[0]))
-                    logger.info("[Test Metrics] Test Attack Accuracy: \t{}".format(test_output[-2]))
-                    logger.info("[Test Metrics] Test BLEU:\t({}, {}, {}, {})".format(test_output[1], test_output[2],
-                                                                                     test_output[3],
-                                                                                     test_output[4]))
-                    logger.info("[Test Metrics] Test Discriminate Loss: \t{}".format(test_output[-3]))
-                    logger.info("[Test Metrics] Test Discriminate Attack Loss: \t{}".format(test_output[-1]))
-                    logger.info(
-                        "[Test Metrics] Test Rouge Recall:\t({}, {}, {})".format(test_output[5], test_output[6],
-                                                                                 test_output[7]))
-                else:
-                    patient += 1
+            test_accuracy, test_bleu1, test_bleu2, test_bleu3, test_bleu4, test_rouge1,test_rouge2, test_rougel, test_loss, test_attack_accuracy, test_attack_loss  = \
+                evaluate(hps, model, test_dataloader, loss_function, loss_function2, optimizer)
+            test_ppl = compute_ppl(hps, model, test_data)
+            logger.info("[Test Metrics] Test Perplexity: \t{}".format(test_ppl))
+            if hps.wandb:
+                wandb.log({
+                    "epoch": epoch, "test_accuracy": test_accuracy, "test_loss": test_loss, "test_perplexity": test_ppl,
+                    "test_bleu1": test_bleu1, "test_bleu2": test_bleu2, "test_bleu3": test_bleu3, "test_bleu4": test_bleu4, 
+                    "test_rouge1": test_rouge1, "test_rouge2": test_rouge2, "test_rouge-l": test_rougel, 
+                })
 
-                logger.info("[Patient] {}".format(patient))
+            print('\n')
+            logger.info("[Test Metrics] Test Accuracy: \t{}".format(test_accuracy))
+            logger.info("[Test Metrics] Test Attack Accuracy: \t{}".format(test_attack_accuracy))
+            logger.info("[Test Metrics] Test BLEU:\t({}, {}, {}, {})".format(test_bleu1, test_bleu2, test_bleu3, test_bleu4))
+            logger.info("[Test Metrics] Test Discriminate Loss: \t{}".format(test_loss))
+            logger.info("[Test Metrics] Test Discriminate Attack Loss: \t{}".format(test_attack_loss))
+            logger.info(
+                "[Test Metrics] Test Rouge Recall:\t({}, {}, {})".format(test_rouge1, test_rouge2, test_rougel))
+        else:
+            patient += 1
 
-                if patient >= hps.patient:
-                    logger.info("[INFO] Stopping Training by Early Stopping")
-                    stop_train = True
-                    break
-            step += 1
+        logger.info("[Patient] {}".format(patient))
 
-        if stop_train:
+        if patient >= hps.patient:
+            logger.info("[INFO] Stopping Training by Early Stopping")
             break
 
 

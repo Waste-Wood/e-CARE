@@ -1,0 +1,112 @@
+python gpt2_multi_task.py \
+  --data_dir "../data/" \
+  --model_dir "gpt2" \
+  --save_dir "./output/saved_model" \
+  --log_dir "./output/log" \
+  --train "train_full.jsonl" \
+  --dev "dev_full.jsonl" \
+  --test "dev_full.jsonl" \
+  --model_name "gpt2" \
+  --gpu "0" \
+  --batch_size 64 \
+  --cuda True\
+  --epochs 10 \
+  --lr 2e-5 \
+  --set_seed True \
+  --seed 1024 \
+  --patient 5 \
+  --length 22 \
+  --alpha 0.9 \
+  --beam_size 5 \
+  --no_repeat_ngram_size 3 \
+  --repetition_penalty 1.5 \
+  --do_sample True \
+  --mode "discriminate_generate" \
+
+python3 gpt2_generate.py \
+	--data_dir '../data/Explanation_Generation/' \
+	--model_dir 'gpt2' \
+	--save_dir './output/saved_model' \
+	--log_dir './output/log' \
+	--train 'train.jsonl' \
+	--dev 'dev.jsonl' \
+	--test 'dev.jsonl' \
+	--model_name 'gpt2' \
+	--cuda True \
+	--gpu '0' \
+	--batch_size 32 \
+	--epochs 10 \
+	--lr 2e-5 \
+    --set_seed True \
+	--seed 1024 \
+	--patient 5 \
+	--length 22 \
+
+python gpt2_multi_task.py \
+  --data_dir "../data/" \
+  --model_dir "gpt2" \
+  --save_dir "./output/saved_model" \
+  --log_dir "./output/log" \
+  --train "train_full.jsonl" \
+  --dev "dev_full.jsonl" \
+  --test "dev_full.jsonl" \
+  --model_name "gpt2" \
+  --gpu "0" \
+  --batch_size 64 \
+  --cuda True\
+  --epochs 10 \
+  --lr 2e-5 \
+  --set_seed True \
+  --seed 1024 \
+  --patient 5 \
+  --length 22 \
+  --alpha 0.9 \
+  --beam_size 5 \
+  --no_repeat_ngram_size 3 \
+  --repetition_penalty 1.5 \
+  --do_sample True \
+  --mode "generate_discriminate" \
+
+python3 gpt2_generate.py \
+	--data_dir '../data/Explanation_Generation/' \
+	--model_dir 'gpt2' \
+	--save_dir './output/saved_model' \
+	--log_dir './output/log' \
+	--train 'train.jsonl' \
+	--dev 'dev.jsonl' \
+	--test 'dev.jsonl' \
+	--model_name 'gpt2' \
+	--cuda True \
+	--gpu '0' \
+	--batch_size 32 \
+	--epochs 10 \
+	--lr 2e-5 \
+    --set_seed True \
+	--seed 1024 \
+	--patient 5 \
+	--length 22 \
+
+python gpt2_multi_task.py \
+  --data_dir "../data/" \
+  --model_dir "gpt2" \
+  --save_dir "./output/saved_model" \
+  --log_dir "./output/log" \
+  --train "train_full.jsonl" \
+  --dev "dev_full.jsonl" \
+  --test "dev_full.jsonl" \
+  --model_name "gpt2" \
+  --gpu "0" \
+  --batch_size 64 \
+  --cuda True\
+  --epochs 10 \
+  --lr 1e-5 \
+  --set_seed True \
+  --seed 1024 \
+  --patient 5 \
+  --length 22 \
+  --alpha 0.9 \
+  --beam_size 5 \
+  --no_repeat_ngram_size 3 \
+  --repetition_penalty 1.5 \
+  --do_sample True \
+  --mode "discriminate_generate" \

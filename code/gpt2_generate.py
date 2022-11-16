@@ -13,7 +13,7 @@ from tqdm import trange
 import datetime
 import logging
 import pdb
-
+import wandb
 
 def main():
     parser = argparse.ArgumentParser(description='xCAR')
@@ -46,9 +46,17 @@ def main():
     parser.add_argument('--patient', type=int, default=10, help='the patient of early-stopping')
     parser.add_argument('--length', type=int, default=22, help='the max length of generated text')
     parser.add_argument('--output_dir', type=str, default='./output/output_examples')
+    parser.add_argument('--wandb', type=bool, default=True, help="If set True, log results to wandb")
 
     # parsing the hyper-parameters from command line and define logger
     hps = parser.parse_args()
+    if hps.wandb:
+        wandb.init(
+            project="anlp-causal-generation", 
+            entity="specteross", 
+            config=hps, 
+            name=f"{hps.model_dir} loss-BCE bs-{hps.batch_size} lr-{hps.lr} seed-{hps.seed}{' shuffle' if hps.shuffle else ''}"
+        )
     logger, formatter = define_logger()
     nowtime = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
     log_path = os.path.join(hps.log_dir, 'generated_'+hps.model_name+'.txt')
@@ -82,8 +90,8 @@ def main():
     DEV = TensorDataset(dev_label_ids, dev_label_mask, dev_label_seg_ids, dev_premise_ids, dev_premise_mask, dev_premise_seg_ids)
     TEST = TensorDataset(test_label_ids, test_label_mask, test_label_seg_ids, test_premise_ids, test_premise_mask, test_premise_seg_ids)
     train_dataloader = DataLoader(TRAIN, batch_size=hps.batch_size, shuffle=hps.shuffle, drop_last=False)
-    dev_dataloader = DataLoader(DEV, batch_size=hps.batch_size, shuffle=hps.shuffle, drop_last=False)
-    test_dataloader = DataLoader(TEST, batch_size=hps.batch_size, shuffle=hps.shuffle, drop_last=False)
+    dev_dataloader = DataLoader(DEV, batch_size=hps.batch_size, shuffle=False, drop_last=False)
+    test_dataloader = DataLoader(TEST, batch_size=hps.batch_size, shuffle=False, drop_last=False)
 
     # initialize model, optimizer, loss_function
     logger.info('[INFO] Loading pretrained model, setting optimizer and loss function')
@@ -146,48 +154,56 @@ def main():
             loss.backward()
             optimizer.step()
 
-            if step % hps.evaluation_step == 0 and step != 0:
-                model.eval()
+        model.eval()
 
-                with torch.no_grad():
-                    print('\n')
-                    logger.info("[Dev Evaluation] Start Evaluation on Dev Set")
-                    dev_bleu1, dev_bleu2, dev_bleu3, dev_bleu4, dev_rouge1, dev_rouge2, dev_rougel = gpt2_evaluate(model, hps.length, dev_dataloader, hps)
-                    print('\n')
-                    logger.info("[Dev Metrics] Dev BLEU: \t({}, {}, {}, {})".format(dev_bleu1, dev_bleu2, dev_bleu3, dev_bleu4))
-                    logger.info("[Dev Metrics] Dev Rouge: \t({}, {}, {})".format(dev_rouge1, dev_rouge2, dev_rougel))
+        with torch.no_grad():
+            print('\n')
+            logger.info("[Dev Evaluation] Start Evaluation on Dev Set")
+            dev_bleu1, dev_bleu2, dev_bleu3, dev_bleu4, dev_rouge1, dev_rouge2, dev_rougel = gpt2_evaluate(model, hps.length, dev_dataloader, hps)
+            print('\n')
+            logger.info("[Dev Metrics] Dev BLEU: \t({}, {}, {}, {})".format(dev_bleu1, dev_bleu2, dev_bleu3, dev_bleu4))
+            logger.info("[Dev Metrics] Dev Rouge: \t({}, {}, {})".format(dev_rouge1, dev_rouge2, dev_rougel))
 
-                    dev_ppl = compute_ppl(hps, model, dev_data)
-                    logger.info('[PPL] Model PerPlexity On Dev Set is {}'.format(dev_ppl))
+            dev_ppl = compute_ppl(hps, model, dev_data)
+            logger.info('[PPL] Model PerPlexity On Dev Set is {}'.format(dev_ppl))
 
-                    if dev_bleu1 + dev_rouge1 >= best_accuracy:
-                        patient = 0
-                        best_accuracy = dev_bleu1 + dev_rouge1
-                        logger.info("[Saving] Saving Model to {}".format(hps.save_dir))
-                        # torch.save(model, os.path.join(hps.save_dir, '{}_{}'.format('generated', hps.model_name)))
-                        logger.info("[Test Evaluation] Start Evaluation on Test Set")
+            
+            if hps.wandb:
+                wandb.log({
+                    "epoch": epoch, "dev_perplexity": dev_ppl,
+                    "dev_bleu1": dev_bleu1, "dev_bleu2": dev_bleu2, "dev_bleu3": dev_bleu3, "dev_bleu4": dev_bleu4, 
+                    "dev_rouge1": dev_rouge1, "dev_rouge2": dev_rouge2, "dev_rouge-l": dev_rougel, 
+                })
 
-                        test_bleu1, test_bleu2, test_bleu3, test_bleu4, test_rouge1, test_rouge2, test_rougel = gpt2_evaluate(model, hps.length, test_dataloader, hps)
-                        
-                        print('\n')
-                        logger.info("[TEST Metrics] Test BLEU: \t({}, {}, {}, {})".format(test_bleu1, test_bleu2, test_bleu3, test_bleu4))
-                        logger.info("[TEST Metrics] Test Rouge: \t({}, {}, {})".format(test_rouge1, test_rouge2, test_rougel))
-                        test_ppl = compute_ppl(hps, model, test_data)
-                        logger.info('[PPL] Model PerPlexity On Test Set is {}'.format(test_ppl))
-                    else:
-                        patient += 1
+            if dev_bleu1 + dev_rouge1 >= best_accuracy:
+                patient = 0
+                best_accuracy = dev_bleu1 + dev_rouge1
+                logger.info("[Saving] Saving Model to {}".format(hps.save_dir))
+                # torch.save(model, os.path.join(hps.save_dir, '{}_{}'.format('generated', hps.model_name)))
+                logger.info("[Test Evaluation] Start Evaluation on Test Set")
 
-                    logger.info("[Patient] {}".format(patient))
+                test_bleu1, test_bleu2, test_bleu3, test_bleu4, test_rouge1, test_rouge2, test_rougel = gpt2_evaluate(model, hps.length, test_dataloader, hps)
+                
+                print('\n')
+                logger.info("[TEST Metrics] Test BLEU: \t({}, {}, {}, {})".format(test_bleu1, test_bleu2, test_bleu3, test_bleu4))
+                logger.info("[TEST Metrics] Test Rouge: \t({}, {}, {})".format(test_rouge1, test_rouge2, test_rougel))
+                test_ppl = compute_ppl(hps, model, test_data)
+                logger.info('[PPL] Model PerPlexity On Test Set is {}'.format(test_ppl))
 
-                    if patient >= hps.patient:
-                        logger.info("[INFO] Stopping Training by Early Stopping")
-                        stop_train = True
-                        break
-            step += 1
+                if hps.wandb:
+                    wandb.log({
+                        "epoch": epoch, "test_perplexity": test_ppl,
+                        "test_bleu1": test_bleu1, "test_bleu2": test_bleu2, "test_bleu3": test_bleu3, "test_bleu4": test_bleu4, 
+                        "test_rouge1": test_rouge1, "test_rouge2": test_rouge2, "test_rouge-l": test_rougel, 
+                    })
+            else:
+                patient += 1
 
-        if stop_train:
+            logger.info("[Patient] {}".format(patient))
+
+        if patient >= hps.patient:
+            logger.info("[INFO] Stopping Training by Early Stopping")
             break
-
 
 if __name__ == '__main__':
     main()

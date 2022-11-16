@@ -308,10 +308,10 @@ def evaluate_multi_task(model, dataloader_input, dataloader_output, hps):
         gold_text = [tokenizer.decode(g, skip_special_tokens=True, clean_up_tokenization_spaces=False) for g in decoder_ids[::2, :].tolist()]
 
         for i in range(len(generated_text)):
-            bleu1 += bleu([gold_text[i]], generated_text[i], [1, 0, 0, 0])
-            bleu2 += bleu([gold_text[i]], generated_text[i], [0, 1, 0, 0])
-            bleu3 += bleu([gold_text[i]], generated_text[i], [0, 0, 1, 0])
-            bleu4 += bleu([gold_text[i]], generated_text[i], [0, 0, 0, 1])
+            bleu1 += bleu([gold_text[i]], generated_text[i].strip(), [1, 0, 0, 0])
+            bleu2 += bleu([gold_text[i]], generated_text[i].strip(), [0, 1, 0, 0])
+            bleu3 += bleu([gold_text[i]], generated_text[i].strip(), [0, 0, 1, 0])
+            bleu4 += bleu([gold_text[i]], generated_text[i].strip(), [0, 0, 0, 1])
 
     num_instances = (len(dataloader_output) - 1) * hps.batch_size // 2 + input_ids.shape[0]
     return count / num_instances, bleu1 / num_instances, bleu2 / num_instances, bleu3 / num_instances, bleu4 / num_instances
