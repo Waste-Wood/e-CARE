@@ -3,19 +3,17 @@ from utils.utils import load_data, define_logger, tokenize_gen, evaluate_gpt2, g
 import random
 import numpy as np
 import torch
-from model.generatively_model import gpt2_generate, bart_generate
+from model.generatively_model import gpt2_generate
 from transformers import AdamW, GPT2LMHeadModel, GPT2Tokenizer
-import sys
 import torch.nn as nn
 import os
 from torch.utils.data import TensorDataset, DataLoader
 from tqdm import trange
 import datetime
 import logging
-import pdb
 import copy
 import torch.nn.functional as F
-
+import wandb
 
 
 class gpt2_discriminate(nn.Module):
@@ -46,13 +44,13 @@ def tokenization(data, hps):
     for example in data:
         if not hps.hyp_only:
             if example['ask-for'] == 'cause':
-                inputs.append([example['alternative1'], example['premise']])
-                inputs.append([example['alternative2'], example['premise']])
+                inputs.append([example['hypothesis1'], example['premise']])
+                inputs.append([example['hypothesis2'], example['premise']])
             else:
-                inputs.append([example['premise'], example['alternative1']])
-                inputs.append([example['premise'], example['alternative2']])
+                inputs.append([example['premise'], example['hypothesis1']])
+                inputs.append([example['premise'], example['hypothesis2']])
         else:
-            inputs += [example['alternative1'], example['alternative2']]
+            inputs += [example['hypothesis1'], example['hypothesis2']]
         labels += [0, 1] if example['label'] == 1 else [1, 0]
     outputs = tokenizer(inputs, return_length=True)
     input_ids = outputs['input_ids']
@@ -140,7 +138,7 @@ def evaluate(hps, model, dataloader, loss_function, optimizer):
             attack_count += 1
         else:
             continue
-    return count/len(true_labels), loss, attack_count/len(true_labels), attack_loss
+    return count/len(true_labels), loss/len(true_labels), attack_count/len(true_labels), attack_loss/len(true_labels)
 
 
 
@@ -178,9 +176,17 @@ def main():
     parser.add_argument('--output_dir', type=str, default='./output/output_examples')
     parser.add_argument('--hyp_only', type=bool, default=False)
     parser.add_argument('--attack_rate', type=float, default=0.015)
-
+    parser.add_argument('--wandb', type=bool, default=True, help="If set True, log results to wandb")
+    
     # parsing the hyper-parameters from command line and define logger
     hps = parser.parse_args()
+    if hps.wandb:
+        wandb.init(
+            project="anlp-causal", 
+            entity="specteross", 
+            config=hps, 
+            name=f"{hps.model_dir} loss-BCE bs-{hps.batch_size} lr-{hps.lr} seed-{hps.seed}{' shuffle' if hps.shuffle else ''}"
+        )
     logger, formatter = define_logger()
     # nowtime = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
     if hps.hyp_only:
@@ -267,46 +273,46 @@ def main():
             loss.backward()
             optimizer.step()
 
-            if step % hps.evaluation_step == 0 and step != 0:
-                model.eval()
+        model.eval()
 
-                # with torch.no_grad():
-                    # print('\n')
-                logger.info("[Dev Evaluation] Start Evaluation on Dev Set")
-                evaluation_output  = evaluate(hps, model, dev_dataloader, loss_function, optimizer)
-                # print('\n')
-                logger.info("[Dev Metrics] Dev Accuracy: \t{}".format(evaluation_output[0]))
-                logger.info("[Dev Metrics] Dev Attack Accuracy: \t{}".format(evaluation_output[2]))
-                logger.info("[Dev Metrics] Dev Loss: \t{}".format(evaluation_output[1]))
-                logger.info("[Dev Metrics] Dev Attack Loss: \t{}".format(evaluation_output[3]))
+        # with torch.no_grad():
+            # print('\n')
+        logger.info("[Dev Evaluation] Start Evaluation on Dev Set")
+        evaluation_output  = evaluate(hps, model, dev_dataloader, loss_function, optimizer)
+        # print('\n')
+        logger.info("[Dev Metrics] Dev Accuracy: \t{}".format(evaluation_output[0]))
+        logger.info("[Dev Metrics] Dev Attack Accuracy: \t{}".format(evaluation_output[2]))
+        logger.info("[Dev Metrics] Dev Loss: \t{}".format(evaluation_output[1]))
+        logger.info("[Dev Metrics] Dev Attack Loss: \t{}".format(evaluation_output[3]))
+        if hps.wandb:
+            wandb.log({"epoch": epoch, "dev_accuracy": evaluation_output[0], "dev_loss": evaluation_output[1]})
 
 
-                if evaluation_output[0] >= best_accuracy:
-                    patient = 0
-                    best_accuracy = evaluation_output[0]
-                    logger.info("[Saving] Saving Model to {}".format(hps.save_dir))
-                    # torch.save(model, os.path.join(hps.save_dir, '{}_{}'.format('generated', hps.model_name)))
-                    logger.info("[Test Evaluation] Start Evaluation on Test Set")
+        if evaluation_output[0] >= best_accuracy:
+            patient = 0
+            best_accuracy = evaluation_output[0]
+            logger.info("[Saving] Saving Model to {}".format(hps.save_dir))
+            # torch.save(model, os.path.join(hps.save_dir, '{}_{}'.format('generated', hps.model_name)))
+            logger.info("[Test Evaluation] Start Evaluation on Test Set")
 
-                    evaluation_output = evaluate(hps, model, test_dataloader, loss_function, optimizer)
+            evaluation_output = evaluate(hps, model, test_dataloader, loss_function, optimizer)
 
-                    print('\n')
-                    logger.info("[Test Metrics] Test Accuracy: \t{}".format(evaluation_output[0]))
-                    logger.info("[Test Metrics] Test Attack Accuracy: \t{}".format(evaluation_output[2]))
-                    logger.info("[Test Metrics] Test Loss: \t{}".format(evaluation_output[1]))
-                    logger.info("[Test Metrics] Test Attack Loss: \t{}".format(evaluation_output[3]))
-                else:
-                    patient += 1
+            print('\n')
+            logger.info("[Test Metrics] Test Accuracy: \t{}".format(evaluation_output[0]))
+            logger.info("[Test Metrics] Test Attack Accuracy: \t{}".format(evaluation_output[2]))
+            logger.info("[Test Metrics] Test Loss: \t{}".format(evaluation_output[1]))
+            logger.info("[Test Metrics] Test Attack Loss: \t{}".format(evaluation_output[3]))
+            if hps.wandb:
+                wandb.log({"epoch": epoch, "test_accuracy": evaluation_output[0], "test_loss": evaluation_output[1]})
 
-                logger.info("[Patient] {}".format(patient))
+        else:
+            patient += 1
 
-                if patient >= hps.patient:
-                    logger.info("[INFO] Stopping Training by Early Stopping")
-                    stop_train = True
-                    break
-            step += 1
+        logger.info("[Patient] {}".format(patient))
 
-        if stop_train:
+        if patient >= hps.patient:
+            logger.info("[INFO] Stopping Training by Early Stopping")
+            # stop_training 
             break
 
 

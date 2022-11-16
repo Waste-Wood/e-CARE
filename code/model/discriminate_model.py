@@ -63,8 +63,12 @@ class pretrained_model(nn.Module):
         # get the cls token for classification
         if self.model_name in ['bert', 'roberta', 'albert']:
             cls_token = output[1]   # Bert, Roberta, ALBERT
-        elif self.model_name in ['gpt', 'gpt2']:
+        elif self.model_name in ['gpt']:
+            print(f"{output.last_hidden_state.size()}\t{output[0].size()}")
             cls_token = output[0][range(output[0].shape[0]), length.cpu().tolist(), :]   # GPT
+        elif self.model_name in ['gpt2']:
+            print(f"{output.last_hidden_state.size()}\t{output[0].size()}")
+            cls_token = output[0][range(output[0].shape[0]), length.cpu().tolist(), :]   # GPT-2
         elif self.model_name == 'deberta':
             cls_token = output[0][:, -1, :]  # DebertaV2Model
         elif self.model_name == 'xlnet':

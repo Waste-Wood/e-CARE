@@ -577,7 +577,7 @@ def causal_reasoning_error_analysis(hps, data, dataloader, model, loss_function,
     error_analysis_data.append(['', '', '', '', '', f"Accuracy: {count/len(true_labels)}", f"Loss: {loss/len(true_labels)}"])
     error_analysis_df = pd.DataFrame(error_analysis_data, columns=["data_instance", "premise", "ask-for", "hypothesis1", "hypothesis2", "true_label", "predicted_label"])
 
-    file_name = f"""results_{hps.model_dir}_{file_name_modifier}_{datetime.datetime.now().strftime("%y%m%d%H:%M:%S")}.tsv"""
+    file_name = f"""results_{hps.model_dir.replace('/', '-')}_{file_name_modifier}_{datetime.datetime.now().strftime("%y%m%d%H:%M:%S")}.tsv"""
     file_path = os.path.join(OUTPUT_LOG_DIR, file_name)
     print(f"Save error analysis results to {file_path}...")
     error_analysis_df.to_csv(file_path, sep='\t', index=False)
