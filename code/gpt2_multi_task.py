@@ -436,7 +436,7 @@ def main():
     parser.add_argument('--early_stopping', type=bool, default=False)
     parser.add_argument('--do_sample', type=bool, default=True)
     parser.add_argument('--attack_rate', type=float, default=0.015)
-    parser.add_argument('--wandb', type=bool, default=True, help="If set True, log results to wandb")
+    parser.add_argument('--wandb', type=bool, default=False, help="If set True, log results to wandb")
 
     # parsing the hyper-parameters from command line and define logger
     hps = parser.parse_args()

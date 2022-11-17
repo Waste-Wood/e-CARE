@@ -48,7 +48,7 @@ def main():
     parser.add_argument('--patient', type=int, default=10, help='the patient of early-stopping')
     parser.add_argument('--loss_func', type=str, default='BCE', help="loss function of output")
     parser.add_argument('--hyp_only', type=bool, default=False, help="If set True, Only send hypothesis into model")
-    parser.add_argument('--wandb', type=bool, default=True, help="If set True, log results to wandb")
+    parser.add_argument('--wandb', type=bool, default=False, help="If set True, log results to wandb")
     # parser.add_argument('--warmup_proportion', type=float, default=0.1, help='warmup settings')
 
     # parsing the hyper-parameters from command line and define logger

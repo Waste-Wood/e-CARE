@@ -176,7 +176,7 @@ def main():
     parser.add_argument('--output_dir', type=str, default='./output/output_examples')
     parser.add_argument('--hyp_only', type=bool, default=False)
     parser.add_argument('--attack_rate', type=float, default=0.015)
-    parser.add_argument('--wandb', type=bool, default=True, help="If set True, log results to wandb")
+    parser.add_argument('--wandb', type=bool, default=False, help="If set True, log results to wandb")
     
     # parsing the hyper-parameters from command line and define logger
     hps = parser.parse_args()
