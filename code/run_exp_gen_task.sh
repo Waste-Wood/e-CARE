@@ -8,7 +8,7 @@ python gpt2_multi_task.py \
   --test "dev_full.jsonl" \
   --model_name "gpt2" \
   --gpu "0" \
-  --batch_size 64 \
+  --batch_size 32 \
   --cuda True\
   --epochs 10 \
   --lr 2e-5 \
@@ -52,7 +52,7 @@ python gpt2_multi_task.py \
   --test "dev_full.jsonl" \
   --model_name "gpt2" \
   --gpu "0" \
-  --batch_size 64 \
+  --batch_size 32 \
   --cuda True\
   --epochs 10 \
   --lr 2e-5 \
@@ -96,7 +96,7 @@ python gpt2_multi_task.py \
   --test "dev_full.jsonl" \
   --model_name "gpt2" \
   --gpu "0" \
-  --batch_size 64 \
+  --batch_size 32 \
   --cuda True\
   --epochs 10 \
   --lr 1e-5 \
