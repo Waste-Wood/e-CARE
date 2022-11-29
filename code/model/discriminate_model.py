@@ -14,7 +14,7 @@ class pretrained_model(nn.Module):
         super(pretrained_model, self).__init__()
         self.model_name = hps.model_name
         self.hps = hps
-        if hps.model_name == 'bert':
+        if hps.model_name == 'bert' or hps.model_name == 'causalbert':
             self.model = BertModel.from_pretrained(hps.model_dir)
             self.config = BertConfig(hps.model_dir)
         elif hps.model_name == 'roberta':
@@ -52,7 +52,7 @@ class pretrained_model(nn.Module):
     def forward(self, input_ids, attention_mask, seg_ids=None, length=None):
 
         # model list: Bert, ALBERT, GPT
-        if self.model_name in ['bert', 'albert', 'gpt', 'gpt2']:
+        if self.model_name in ['bert', 'albert', 'gpt', 'gpt2', 'causalbert']:
             output = self.model(input_ids=input_ids, attention_mask=attention_mask, token_type_ids=seg_ids)
         elif self.model_name in ['deberta']:
             output = self.model(input_ids=input_ids, attention_mask=attention_mask, token_type_ids=seg_ids, return_dict=False)
@@ -61,7 +61,7 @@ class pretrained_model(nn.Module):
             output = self.model(input_ids=input_ids, attention_mask=attention_mask)
 
         # get the cls token for classification
-        if self.model_name in ['bert', 'roberta', 'albert']:
+        if self.model_name in ['bert', 'roberta', 'albert', 'causalbert']:
             cls_token = output[1]   # Bert, Roberta, ALBERT
         elif self.model_name in ['gpt']:
             print(f"{output.last_hidden_state.size()}\t{output[0].size()}")

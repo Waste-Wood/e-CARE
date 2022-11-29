@@ -29,6 +29,7 @@ def tokenize_data(data, model_path, model_name):
         tokenizer = BertTokenizer.from_pretrained(model_path)
     elif model_name == 'roberta':
         tokenizer = RobertaTokenizer.from_pretrained(model_path)
+    
 
     # unique ids
     cls_id = tokenizer._convert_token_to_id('[CLS]')
@@ -90,6 +91,8 @@ def tokenize_multi_choices(data, hps):
         tokenizer = XLNetTokenizer.from_pretrained(hps.model_dir)
     elif hps.model_name == 'deberta':
         tokenizer = DebertaV2Tokenizer.from_pretrained(hps.model_dir)
+    elif hps.model_name == 'causalbert':
+        tokenizer = BertTokenizer.from_pretrained("bert-base-cased")
     else:
         tokenizer = AutoTokenizer.from_pretrained(hps.model_dir)
     
@@ -141,7 +144,9 @@ def quick_tokenize(data, hps):
     elif hps.model_name == 'xlnet':
         tokenizer = XLNetTokenizer.from_pretrained(hps.model_dir)
     elif hps.model_name == 'deberta':
-        tokenizer = DebertaV2Tokenizer.from_pretrained(hps.model_dir)        
+        tokenizer = DebertaV2Tokenizer.from_pretrained(hps.model_dir) 
+    elif hps.model_name == 'causalbert':
+        tokenizer = BertTokenizer.from_pretrained("bert-base-cased")       
     else:
         tokenizer = AutoTokenizer.from_pretrained(hps.model_dir)
 
