@@ -11,7 +11,7 @@ python3 train_discriminate.py \
   --batch_size 64 \
   --cuda True\
   --epochs 5 \
-  --lr 2e-5 \
+  --lr 1e-5 \
   --set_seed True \
   --patient 3 \
   --loss_func "BCE" \
@@ -30,7 +30,7 @@ python3 train_discriminate.py \
   --batch_size 64 \
   --cuda True\
   --epochs 5 \
-  --lr 5e-5 \
+  --lr 5e-6 \
   --set_seed True \
   --patient 3 \
   --loss_func "BCE" \
