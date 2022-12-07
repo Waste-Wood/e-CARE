@@ -1,10 +1,10 @@
 import argparse
-from utils.utils import load_data, define_logger, tokenize_gen, evaluate_gpt2, gpt2_evaluate, compute_ppl
+from utils.utils import load_data, define_logger, tokenize_gen, evaluate_gpt2, gpt2_evaluate, bart_evaluate, compute_ppl
 import random
 import numpy as np
 import torch
 from model.generatively_model import gpt2_generate
-from transformers import AdamW, GPT2LMHeadModel
+from transformers import AdamW, GPT2LMHeadModel, BartForConditionalGeneration
 import sys
 import torch.nn as nn
 import os
@@ -80,15 +80,25 @@ def main():
 
     # Tokenization
     logger.info("[INFO] Tokenization and Padding for Data")
-    train_ids, train_mask, train_seg_ids, train_label_ids, train_label_mask, _, _, _, _ = tokenize_gen(train_data, hps)
-    _, _, _, dev_label_ids, dev_label_mask, dev_label_seg_ids, dev_premise_ids, dev_premise_mask, dev_premise_seg_ids = tokenize_gen(dev_data, hps)
-    _, _, _, test_label_ids, test_label_mask, test_label_seg_ids, test_premise_ids, test_premise_mask, test_premise_seg_ids = tokenize_gen(test_data, hps)
+    if hps.model_name == 'bart':
+        train_ids, train_mask, train_label_ids, train_label_mask = tokenize_gen(train_data, hps)
+        dev_ids, dev_mask, dev_label_ids, dev_label_mask = tokenize_gen(train_data, hps)
+        test_ids, test_mask, test_label_ids, test_label_mask = tokenize_gen(train_data, hps)
+    else:
+        train_ids, train_mask, train_seg_ids, train_label_ids, train_label_mask, _, _, _, _ = tokenize_gen(train_data, hps)
+        _, _, _, dev_label_ids, dev_label_mask, dev_label_seg_ids, dev_premise_ids, dev_premise_mask, dev_premise_seg_ids = tokenize_gen(dev_data, hps)
+        _, _, _, test_label_ids, test_label_mask, test_label_seg_ids, test_premise_ids, test_premise_mask, test_premise_seg_ids = tokenize_gen(test_data, hps)
 
     # Dataset and DataLoader
     logger.info("[INFO] Creating Dataset and splitting batch for data")
-    TRAIN = TensorDataset(train_ids, train_mask, train_seg_ids, train_label_ids, train_label_mask)
-    DEV = TensorDataset(dev_label_ids, dev_label_mask, dev_label_seg_ids, dev_premise_ids, dev_premise_mask, dev_premise_seg_ids)
-    TEST = TensorDataset(test_label_ids, test_label_mask, test_label_seg_ids, test_premise_ids, test_premise_mask, test_premise_seg_ids)
+    if hps.model_name == 'bart':
+        TRAIN = TensorDataset(train_ids, train_mask, train_label_ids, train_label_mask)
+        DEV = TensorDataset(dev_ids, dev_mask, dev_label_ids, dev_label_mask)
+        TEST = TensorDataset(test_ids, test_mask, test_label_ids, test_label_mask)
+    else:
+        TRAIN = TensorDataset(train_ids, train_mask, train_seg_ids, train_label_ids, train_label_mask)
+        DEV = TensorDataset(dev_label_ids, dev_label_mask, dev_label_seg_ids, dev_premise_ids, dev_premise_mask, dev_premise_seg_ids)
+        TEST = TensorDataset(test_label_ids, test_label_mask, test_label_seg_ids, test_premise_ids, test_premise_mask, test_premise_seg_ids)
     train_dataloader = DataLoader(TRAIN, batch_size=hps.batch_size, shuffle=hps.shuffle, drop_last=False)
     dev_dataloader = DataLoader(DEV, batch_size=hps.batch_size, shuffle=False, drop_last=False)
     test_dataloader = DataLoader(TEST, batch_size=hps.batch_size, shuffle=False, drop_last=False)
@@ -97,7 +107,10 @@ def main():
     logger.info('[INFO] Loading pretrained model, setting optimizer and loss function')
 
     # model = gpt2_generate(hps)
-    model = GPT2LMHeadModel.from_pretrained(hps.model_dir)
+    if hps.model_name == 'bart':
+        model = BartForConditionalGeneration.from_pretrained(hps.model_dir)
+    else:
+        model = GPT2LMHeadModel.from_pretrained(hps.model_dir)
 
     optimizer = AdamW(filter(lambda p: p.requires_grad, model.parameters()), lr=hps.lr)
 
@@ -123,10 +136,13 @@ def main():
         for i, batch in zip(t, train_dataloader):
             optimizer.zero_grad()
             model.train()
-            if hps.cuda:
+            if hps.cuda: 
                 batch = tuple(term.cuda() for term in batch)
 
-            input_ids, input_mask, input_seg_ids, input_labels, input_labels_mask = batch
+            if hps.model_name == 'bart':
+                input_ids, input_mask, input_labels, input_labels_mask = batch
+            else:
+                input_ids, input_mask, input_seg_ids, input_labels, input_labels_mask = batch
             # pdb.set_trace()
             tmp = torch.ones(input_labels_mask.shape).long()
             count_mask_length = torch.sum(tmp==input_labels_mask.cpu(), 1).squeeze().tolist()
@@ -144,10 +160,24 @@ def main():
 
             # loss = model(input_ids=input_ids, attention_mask=input_mask, token_type_ids=input_seg_ids, true_labels=true_labels, mode='train')[0]
             # pdb.set_trace()
-            output = model(input_ids=input_ids, attention_mask=input_mask, token_type_ids=input_seg_ids, labels=true_labels)
-            loss = output[0]
+            if hps.model_name == 'bart':
+                #print(input_ids[0],len(input_ids[0]),  input_mask[0], len(input_mask[0]))
+                #output = model(input_ids=input_ids, attention_mask=input_mask, labels=input_labels)
+                #output = model(input_ids, attention_mask=input_mask, decoder_input_ids=input_labels, decoder_attention_mask=input_labels_mask, labels=true_labels)
 
-            total_loss += loss.item()
+                output = model(input_ids, attention_mask=input_mask, labels=input_labels)
+                #output = model(input_ids, attention_mask=input_mask, decoder_input_ids=input_labels, decoder_attention_mask=input_labels_mask, labels=input_labels)
+                loss = output.loss
+                total_loss += loss
+            else:
+                output = model(input_ids=input_ids, attention_mask=input_mask, token_type_ids=input_seg_ids, labels=true_labels)
+                loss = output[0]
+                total_loss += loss.item()
+            #print(loss)
+
+            #total_loss += loss
+            #total_loss += loss.item()
+
             t.set_postfix(avg_loss='{}'.format(total_loss/(epoch_step+1)))
             epoch_step += 1
 
@@ -159,7 +189,11 @@ def main():
         with torch.no_grad():
             print('\n')
             logger.info("[Dev Evaluation] Start Evaluation on Dev Set")
-            dev_bleu1, dev_bleu2, dev_bleu3, dev_bleu4, dev_rouge1, dev_rouge2, dev_rougel = gpt2_evaluate(model, hps.length, dev_dataloader, hps)
+            if hps.model_name == 'bart':
+                dev_bleu1, dev_bleu2, dev_bleu3, dev_bleu4, dev_rouge1, dev_rouge2, dev_rougel = bart_evaluate(model, hps.length, dev_dataloader, hps)
+                ###model, data_loader, hps
+            else:
+                dev_bleu1, dev_bleu2, dev_bleu3, dev_bleu4, dev_rouge1, dev_rouge2, dev_rougel = gpt2_evaluate(model, hps.length, dev_dataloader, hps)
             print('\n')
             logger.info("[Dev Metrics] Dev BLEU: \t({}, {}, {}, {})".format(dev_bleu1, dev_bleu2, dev_bleu3, dev_bleu4))
             logger.info("[Dev Metrics] Dev Rouge: \t({}, {}, {})".format(dev_rouge1, dev_rouge2, dev_rougel))
@@ -182,8 +216,11 @@ def main():
                 # torch.save(model, os.path.join(hps.save_dir, '{}_{}'.format('generated', hps.model_name)))
                 logger.info("[Test Evaluation] Start Evaluation on Test Set")
 
-                test_bleu1, test_bleu2, test_bleu3, test_bleu4, test_rouge1, test_rouge2, test_rougel = gpt2_evaluate(model, hps.length, test_dataloader, hps)
-                
+                if hps.model_name == 'bart':
+                    test_bleu1, test_bleu2, test_bleu3, test_bleu4, test_rouge1, test_rouge2, test_rougel = bart_evaluate(model, hps.length, test_dataloader, hps)
+                else:
+                    test_bleu1, test_bleu2, test_bleu3, test_bleu4, test_rouge1, test_rouge2, test_rougel = gpt2_evaluate(model, hps.length, test_dataloader, hps)
+
                 print('\n')
                 logger.info("[TEST Metrics] Test BLEU: \t({}, {}, {}, {})".format(test_bleu1, test_bleu2, test_bleu3, test_bleu4))
                 logger.info("[TEST Metrics] Test Rouge: \t({}, {}, {})".format(test_rouge1, test_rouge2, test_rougel))

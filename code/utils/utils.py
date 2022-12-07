@@ -191,7 +191,7 @@ def tokenize_multi_task(hps, data):
     truths = []
 
     for example in data:
-        truth, premise, a1, a2 = example['general_truth'], example['premise'], example['alternative1'], example[
+        truth, premise, a1, a2 = example['conceptual_explanation'], example['premise'], example['alternative1'], example[
             'alternative2']
         truths.append(truth)
         if example['ask-for'] == 'cause':
@@ -248,7 +248,7 @@ def compute_ppl(hps, model, data):
         total_length = 0
         for example in data:
             input_text = example['cause'] + ' ' + example['effect']
-            truth = example['general_truth']
+            truth = example['conceptual_explanation']
             inputs = tokenizer(input_text)
             input_ids = torch.LongTensor(inputs['input_ids']).unsqueeze(0).cuda()
             attention_mask = torch.LongTensor(inputs['attention_mask']).unsqueeze(0).cuda()
@@ -257,11 +257,13 @@ def compute_ppl(hps, model, data):
             length = label_ids.shape[1]
             total_length += length
             label_mask = torch.LongTensor(label_inputs['attention_mask']).unsqueeze(0).cuda()
-            # attention_mask = torch.cat((attention_mask, torch.ones(1, label_ids.shape[1]).long().cuda()), 1)
-            # label_ids = torch.cat((torch.LongTensor([-100]*input_ids.shape[1]).unsqueeze(0).cuda(), label_ids), 1)
-            # input_ids = torch.cat((input_ids, label_ids[:, input_ids.shape[1]:]), 1)
+            #attention_mask = torch.cat((attention_mask, torch.ones(1, label_ids.shape[1]).long().cuda()), 1)
+            #label_ids = torch.cat((torch.LongTensor([-100]*input_ids.shape[1]).unsqueeze(0).cuda(), label_ids), 1)
+            #input_ids = torch.cat((input_ids, label_ids[:, input_ids.shape[1]:]), 1)
+            
             with torch.no_grad():
-                loss = model(input_ids, attention_mask=attention_mask, decoder_input_ids=label_ids, decoder_attention_mask=label_mask, labels=label_ids)[0]
+                #loss = model(input_ids, attention_mask=attention_mask, decoder_input_ids=label_ids, decoder_attention_mask=label_mask, labels=label_ids)[0]
+                loss = model(input_ids, attention_mask=attention_mask, labels=label_ids).loss
                 lls.append(loss * length)
 
         ppl = torch.exp(torch.stack(lls).sum() / total_length)
@@ -602,10 +604,12 @@ def define_logger():
 
 def tokenize_gen(data, hps):
     if hps.model_name == 'bart':
-        tokenizer = BartTokenizer.from_pretrained(hps.model_dir)
+        tokenizer = BartTokenizer.from_pretrained(hps.model_dir, max_length=1024)
+        #tokenizer.pad_token = tokenizer.eos_token
+        #print(tokenizer.encode(tokenizer.pad_token), tokenizer.encode(tokenizer.unk_token), "These are special tokens")
     elif hps.model_name == 'gpt2':
         tokenizer = GPT2Tokenizer.from_pretrained(hps.model_dir)
-        tokenizer.pad_token = tokenizer.unk_token
+        tokenizer.pad_token = tokenizer.eos_token
     else:
         tokenizer = None
 
@@ -615,7 +619,7 @@ def tokenize_gen(data, hps):
     for example in data:
         if hps.model_name == 'bart':
             seq1 = example['cause'] + example['effect']
-            seq2 = example['general_truth']
+            seq2 = example['conceptual_explanation']
             inputs.append(seq1)
             labels.append(seq2)
         elif hps.model_name == 'gpt2':
@@ -633,6 +637,7 @@ def tokenize_gen(data, hps):
         label_output = tokenizer(labels, padding=True)
         label_ids = torch.LongTensor(label_output['input_ids'])
         label_attention_mask = torch.LongTensor(label_output['attention_mask'])
+        #ensure pad token is ignored for loss computation
 
         return input_ids, input_attention_mask, label_ids, label_attention_mask
 
@@ -870,7 +875,7 @@ def gpt2_evaluate(model, length, data_loader, hps):
 
 
 
-def bart_evaluate(model, data_loader, hps):
+def bart_evaluate(model, length, data_loader, hps):
     tokenizer = BartTokenizer.from_pretrained(hps.model_dir)
 
     bleu1, bleu2, bleu3, bleu4 = 0, 0, 0, 0
@@ -887,7 +892,7 @@ def bart_evaluate(model, data_loader, hps):
         input_ids, input_mask, labels, label_mask = batch
         generate_ids = model.generate(input_ids, 
         							  attention_mask=input_mask, 
-        							  num_beams=hps.beam_size, 
+        							  #num_beams=hps.beam_size, 
         							  max_length=hps.length, 
         							  early_stopping=True, 
                                       no_repeat_ngram_size=3,
