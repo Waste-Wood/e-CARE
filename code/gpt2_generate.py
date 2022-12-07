@@ -214,33 +214,33 @@ def main():
                 best_accuracy = dev_bleu1 + dev_rouge1
                 logger.info("[Saving] Saving Model to {}".format(hps.save_dir))
                 # torch.save(model, os.path.join(hps.save_dir, '{}_{}'.format('generated', hps.model_name)))
-                logger.info("[Test Evaluation] Start Evaluation on Test Set")
+#                logger.info("[Test Evaluation] Start Evaluation on Test Set")
 
-                if hps.model_name == 'bart':
-                    test_bleu1, test_bleu2, test_bleu3, test_bleu4, test_rouge1, test_rouge2, test_rougel = bart_evaluate(model, hps.length, test_dataloader, hps)
-                else:
-                    test_bleu1, test_bleu2, test_bleu3, test_bleu4, test_rouge1, test_rouge2, test_rougel = gpt2_evaluate(model, hps.length, test_dataloader, hps)
+#                if hps.model_name == 'bart':
+#                    test_bleu1, test_bleu2, test_bleu3, test_bleu4, test_rouge1, test_rouge2, test_rougel = bart_evaluate(model, hps.length, test_dataloader, hps)
+#                else:
+#                    test_bleu1, test_bleu2, test_bleu3, test_bleu4, test_rouge1, test_rouge2, test_rougel = gpt2_evaluate(model, hps.length, test_dataloader, hps)
+#
+#                print('\n')
+#                logger.info("[TEST Metrics] Test BLEU: \t({}, {}, {}, {})".format(test_bleu1, test_bleu2, test_bleu3, test_bleu4))
+#                logger.info("[TEST Metrics] Test Rouge: \t({}, {}, {})".format(test_rouge1, test_rouge2, test_rougel))
+#                test_ppl = compute_ppl(hps, model, test_data)
+#                logger.info('[PPL] Model PerPlexity On Test Set is {}'.format(test_ppl))
 
-                print('\n')
-                logger.info("[TEST Metrics] Test BLEU: \t({}, {}, {}, {})".format(test_bleu1, test_bleu2, test_bleu3, test_bleu4))
-                logger.info("[TEST Metrics] Test Rouge: \t({}, {}, {})".format(test_rouge1, test_rouge2, test_rougel))
-                test_ppl = compute_ppl(hps, model, test_data)
-                logger.info('[PPL] Model PerPlexity On Test Set is {}'.format(test_ppl))
-
-                if hps.wandb:
-                    wandb.log({
-                        "epoch": epoch, "test_perplexity": test_ppl,
-                        "test_bleu1": test_bleu1, "test_bleu2": test_bleu2, "test_bleu3": test_bleu3, "test_bleu4": test_bleu4, 
-                        "test_rouge1": test_rouge1, "test_rouge2": test_rouge2, "test_rouge-l": test_rougel, 
-                    })
-            else:
-                patient += 1
-
-            logger.info("[Patient] {}".format(patient))
-
-        if patient >= hps.patient:
-            logger.info("[INFO] Stopping Training by Early Stopping")
-            break
+#                if hps.wandb:
+#                    wandb.log({
+#                        "epoch": epoch, "test_perplexity": test_ppl,
+#                        "test_bleu1": test_bleu1, "test_bleu2": test_bleu2, "test_bleu3": test_bleu3, "test_bleu4": test_bleu4, 
+#                        "test_rouge1": test_rouge1, "test_rouge2": test_rouge2, "test_rouge-l": test_rougel, 
+#                    })
+#            else:
+#                patient += 1
+#
+#            logger.info("[Patient] {}".format(patient))
+#
+#        if patient >= hps.patient:
+#            logger.info("[INFO] Stopping Training by Early Stopping")
+#            break
 
 if __name__ == '__main__':
     main()

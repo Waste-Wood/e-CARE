@@ -740,7 +740,7 @@ def top_k_logits(logits, k):
 #         context = torch.tensor(context, device=device, dtype=torch.long)
 #     else:
 #         assert context is None, 'Specify exactly one of start_token and context!'
-#         context = torch.full((batch_size, 1), start_token, device=device, dtype=torch.long)
+#             context = torch.full((batch_size, 1), start_token, device=device, dtype=torch.long)
 #     prev = context
 #     output = context.cuda()
 #     past = None
@@ -954,7 +954,10 @@ def bart_evaluate(model, length, data_loader, hps):
             rougelr += rougel['r']
 
     num_instances = (len(data_loader)-1) * hps.batch_size + input_ids.shape[0]
+    
+    print("Saving generations")
 
+    save_path = os.path.abspath(hps.output_dir)
     fo = open(hps.output_dir+'/bart_predict_'+nowtime+'.csv', 'w', encoding='utf-8')
     writer = csv.writer(fo)
     writer.writerows(output_text)
