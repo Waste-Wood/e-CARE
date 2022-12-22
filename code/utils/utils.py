@@ -1,6 +1,6 @@
 import pickle
 from transformers import BertTokenizer, RobertaTokenizer, AlbertTokenizer, OpenAIGPTTokenizer, XLNetTokenizer
-from transformers import GPT2Tokenizer, BartTokenizer
+from transformers import GPT2Tokenizer, BartTokenizer, AutoTokenizer, DebertaV2Tokenizer
 import torch
 import logging
 import sys
@@ -17,6 +17,11 @@ import pdb
 import torch.nn as nn
 import json
 
+import os
+import pandas as pd
+
+# For error analysis
+OUTPUT_LOG_DIR = '../error_analysis'; os.makedirs(OUTPUT_LOG_DIR, exist_ok=True)
 
 def tokenize_data(data, model_path, model_name):
     # tokenizer = BertTokenizer(vocab_file=model_path+'/'+'vocab.txt')
@@ -24,6 +29,7 @@ def tokenize_data(data, model_path, model_name):
         tokenizer = BertTokenizer.from_pretrained(model_path)
     elif model_name == 'roberta':
         tokenizer = RobertaTokenizer.from_pretrained(model_path)
+    
 
     # unique ids
     cls_id = tokenizer._convert_token_to_id('[CLS]')
@@ -81,8 +87,14 @@ def tokenize_multi_choices(data, hps):
         tokenizer.pad_token = tokenizer.unk_token
     elif hps.model_name == 'bart':
         tokenizer = BartTokenizer.from_pretrained(hps.model_dir)
-    else:
+    elif hps.model_name == 'xlnet':
         tokenizer = XLNetTokenizer.from_pretrained(hps.model_dir)
+    elif hps.model_name == 'deberta':
+        tokenizer = DebertaV2Tokenizer.from_pretrained(hps.model_dir)
+    elif hps.model_name == 'causalbert':
+        tokenizer = BertTokenizer.from_pretrained("bert-base-cased")
+    else:
+        tokenizer = AutoTokenizer.from_pretrained(hps.model_dir)
     
     instances = []
     labels = []
@@ -129,13 +141,20 @@ def quick_tokenize(data, hps):
         tokenizer.pad_token = tokenizer.unk_token
     elif hps.model_name == 'bart':
         tokenizer = BartTokenizer.from_pretrained(hps.model_dir)
-    else:
+    elif hps.model_name == 'xlnet':
         tokenizer = XLNetTokenizer.from_pretrained(hps.model_dir)
+    elif hps.model_name == 'deberta':
+        tokenizer = DebertaV2Tokenizer.from_pretrained(hps.model_dir) 
+    elif hps.model_name == 'causalbert':
+        tokenizer = BertTokenizer.from_pretrained("bert-base-cased")       
+    else:
+        tokenizer = AutoTokenizer.from_pretrained(hps.model_dir)
 
     instances = []
     labels = []
     for example in data:
-        premise, a1, a2 = example['premise'], example['alternative1'], example['alternative2']
+        #print(example)
+        premise, a1, a2 = example['premise'], example['hypothesis1'], example['hypothesis2']
 
         if example['ask-for'] == 'cause':
             if not hps.hyp_only:
@@ -172,7 +191,7 @@ def tokenize_multi_task(hps, data):
     truths = []
 
     for example in data:
-        truth, premise, a1, a2 = example['general_truth'], example['premise'], example['alternative1'], example[
+        truth, premise, a1, a2 = example['conceptual_explanation'], example['premise'], example['alternative1'], example[
             'alternative2']
         truths.append(truth)
         if example['ask-for'] == 'cause':
@@ -204,7 +223,7 @@ def compute_ppl(hps, model, data):
         total_length = 0
         for example in data:
             input_text = example['cause'] + ' ' + example['effect']
-            truth = example['general_truth']
+            truth = example['conceptual_explanation']
             inputs = tokenizer(input_text)
             input_ids = torch.LongTensor(inputs['input_ids']).unsqueeze(0).cuda()
             attention_mask = torch.LongTensor(inputs['attention_mask']).unsqueeze(0).cuda()
@@ -229,7 +248,7 @@ def compute_ppl(hps, model, data):
         total_length = 0
         for example in data:
             input_text = example['cause'] + ' ' + example['effect']
-            truth = example['general_truth']
+            truth = example['conceptual_explanation']
             inputs = tokenizer(input_text)
             input_ids = torch.LongTensor(inputs['input_ids']).unsqueeze(0).cuda()
             attention_mask = torch.LongTensor(inputs['attention_mask']).unsqueeze(0).cuda()
@@ -238,11 +257,13 @@ def compute_ppl(hps, model, data):
             length = label_ids.shape[1]
             total_length += length
             label_mask = torch.LongTensor(label_inputs['attention_mask']).unsqueeze(0).cuda()
-            # attention_mask = torch.cat((attention_mask, torch.ones(1, label_ids.shape[1]).long().cuda()), 1)
-            # label_ids = torch.cat((torch.LongTensor([-100]*input_ids.shape[1]).unsqueeze(0).cuda(), label_ids), 1)
-            # input_ids = torch.cat((input_ids, label_ids[:, input_ids.shape[1]:]), 1)
+            #attention_mask = torch.cat((attention_mask, torch.ones(1, label_ids.shape[1]).long().cuda()), 1)
+            #label_ids = torch.cat((torch.LongTensor([-100]*input_ids.shape[1]).unsqueeze(0).cuda(), label_ids), 1)
+            #input_ids = torch.cat((input_ids, label_ids[:, input_ids.shape[1]:]), 1)
+            
             with torch.no_grad():
-                loss = model(input_ids, attention_mask=attention_mask, decoder_input_ids=label_ids, decoder_attention_mask=label_mask, labels=label_ids)[0]
+                #loss = model(input_ids, attention_mask=attention_mask, decoder_input_ids=label_ids, decoder_attention_mask=label_mask, labels=label_ids)[0]
+                loss = model(input_ids, attention_mask=attention_mask, labels=label_ids).loss
                 lls.append(loss * length)
 
         ppl = torch.exp(torch.stack(lls).sum() / total_length)
@@ -294,10 +315,10 @@ def evaluate_multi_task(model, dataloader_input, dataloader_output, hps):
         gold_text = [tokenizer.decode(g, skip_special_tokens=True, clean_up_tokenization_spaces=False) for g in decoder_ids[::2, :].tolist()]
 
         for i in range(len(generated_text)):
-            bleu1 += bleu([gold_text[i]], generated_text[i], [1, 0, 0, 0])
-            bleu2 += bleu([gold_text[i]], generated_text[i], [0, 1, 0, 0])
-            bleu3 += bleu([gold_text[i]], generated_text[i], [0, 0, 1, 0])
-            bleu4 += bleu([gold_text[i]], generated_text[i], [0, 0, 0, 1])
+            bleu1 += bleu([gold_text[i]], generated_text[i].strip(), [1, 0, 0, 0])
+            bleu2 += bleu([gold_text[i]], generated_text[i].strip(), [0, 1, 0, 0])
+            bleu3 += bleu([gold_text[i]], generated_text[i].strip(), [0, 0, 1, 0])
+            bleu4 += bleu([gold_text[i]], generated_text[i].strip(), [0, 0, 0, 1])
 
     num_instances = (len(dataloader_output) - 1) * hps.batch_size // 2 + input_ids.shape[0]
     return count / num_instances, bleu1 / num_instances, bleu2 / num_instances, bleu3 / num_instances, bleu4 / num_instances
@@ -339,7 +360,7 @@ def evaluate_multi_task(model, dataloader_input, dataloader_output, hps):
 
 
 def load_data(path):
-    data = [json.laods(line) for line in open(path, 'r')]
+    data = [json.loads(line) for line in open(path, 'r')]
     return data
 
 
@@ -354,7 +375,7 @@ def evaluation(hps, dataloader, model, loss_function, mode='train'):
 
         if mode == 'train':
             sent, seg_id, atten_mask, tmp_labels, tmp_length = batch
-            probs = model(sent, atten_mask, seg_ids=seg_id, length=tmp_length).squeeze()
+            probs = model(sent, atten_mask, seg_ids=seg_id, length=tmp_length)
         else:
             sent, atten_mask, tmp_labels = batch
             _, probs = model(sent, atten_mask)
@@ -367,8 +388,13 @@ def evaluation(hps, dataloader, model, loss_function, mode='train'):
         #     labels += tmp_labels.cpu().tolist()
         #     loss += loss_function(probs, tmp_labels.float()).item()
         # else:
-        predictions += probs.squeeze().cpu().tolist()
-        loss += loss_function(probs, tmp_labels.float()).item()
+        if hps.loss_func == "CrossEntropy":
+            loss += loss_function(probs, tmp_labels).item()
+            predictions += probs.cpu().tolist()
+        else: 
+            loss += loss_function(probs.squeeze(), tmp_labels.float()).item()
+            predictions += probs.squeeze().cpu().tolist()
+        
         labels += tmp_labels.cpu().numpy().tolist()
 
     # if hps.loss_func == 'CrossEntropy':
@@ -440,14 +466,128 @@ def evaluation(hps, dataloader, model, loss_function, mode='train'):
         predict_labels = torch.argmax(a, 1).tolist()
         true_labels = torch.argmax(t_a, 1).tolist()
     
-    
     count = 0
     for i in range(len(predict_labels)):
         if predict_labels[i] == true_labels[i]:
             count += 1
         else:
             continue
-    return count/len(true_labels), loss
+    return count/len(true_labels), loss/len(true_labels)
+
+
+def build_labels_and_predictions_for_different_datasets(hps, labels, predictions): 
+    if hps.data_name == 'commonsenseqa':
+        a1 = torch.FloatTensor(predictions[::5]).unsqueeze(1)
+        a2 = torch.FloatTensor(predictions[1::5]).unsqueeze(1)
+        a3 = torch.FloatTensor(predictions[2::5]).unsqueeze(1)
+        a4 = torch.FloatTensor(predictions[3::5]).unsqueeze(1)
+        a5 = torch.FloatTensor(predictions[4::5]).unsqueeze(1)
+        a = torch.cat((a1, a2, a3, a4, a5), dim=1)
+
+        t_a1 = torch.FloatTensor(labels[::5]).unsqueeze(1)
+        t_a2 = torch.FloatTensor(labels[1::5]).unsqueeze(1)
+        t_a3 = torch.FloatTensor(labels[2::5]).unsqueeze(1)
+        t_a4 = torch.FloatTensor(labels[3::5]).unsqueeze(1)
+        t_a5 = torch.FloatTensor(labels[4::5]).unsqueeze(1)
+        t_a = torch.cat((t_a1, t_a2, t_a3, t_a4, t_a5), dim=1)
+        predict_labels = torch.argmax(a, 1).tolist()
+        true_labels = torch.argmax(t_a, 1).tolist()
+
+    elif hps.data_name == 'because':
+        # softmax = nn.Softmax(1)
+        a = predictions
+        t_a = labels
+        predict_labels = torch.sigmoid(torch.FloatTensor(a)).tolist()
+        true_labels = t_a
+        for k, p in enumerate(predict_labels):
+            if p >= 0.5:
+                predict_labels[k] = 1
+            else:
+                predict_labels[k] = 0
+
+    elif hps.data_name == 'event_storyline':
+        a = predictions
+        predict_labels = torch.sigmoid(torch.FloatTensor(a)).tolist()
+        predict_labels = [1 if p >= 0.5 else 0 for p in predict_labels]
+        t_a = labels
+        tp, tn, fp, fn = 0, 0, 0, 0
+        for k in range(len(t_a)):
+            if labels[k] == 1 and predict_labels[k] == 1:
+                tp += 1
+            elif labels[k] == 1 and predict_labels[k] == 0:
+                fn += 1
+            elif labels[k] == 0 and predict_labels[k] == 1:
+                fp += 1
+            else:
+                tn += 1
+        precision = tp / (tp+fp)
+        recall = tp / (tp+fn)
+        f1 = 2*precision*recall/(precision+recall)
+        # return f1, 0
+        true_labels = t_a
+
+    else:
+        a1 = torch.FloatTensor(predictions[::2]).unsqueeze(1)
+        a2 = torch.FloatTensor(predictions[1::2]).unsqueeze(1)
+        a = torch.cat((a1, a2), dim=1)
+        t_a1 = torch.FloatTensor(labels[::2]).unsqueeze(1)
+        t_a2 = torch.FloatTensor(labels[1::2]).unsqueeze(1)
+        t_a = torch.cat((t_a1, t_a2), dim=1)
+        predict_labels = torch.argmax(a, 1).tolist()
+        true_labels = torch.argmax(t_a, 1).tolist()
+    
+    return true_labels, predict_labels
+
+
+def causal_reasoning_error_analysis(hps, data, dataloader, model, loss_function, file_name_modifier=''):
+    """ WARNING: ASSUMES THAT THE DATALOADER didn't shuffle the data """
+    if hps.shuffle: 
+        raise Exception("Sorry, currently doesn't work with shuffled data")
+
+    predictions = []
+    labels = []
+    loss = 0
+    model.eval()
+    for batch in dataloader:
+        if hps.cuda:
+            batch = tuple(term.cuda() for term in batch)
+
+        sent, seg_id, atten_mask, tmp_labels, tmp_length = batch
+        probs = model(sent, atten_mask, seg_ids=seg_id, length=tmp_length)
+
+        if hps.loss_func == "CrossEntropy":
+            loss += loss_function(probs, tmp_labels).item()
+            predictions += probs.cpu().tolist()
+        else: 
+            loss += loss_function(probs.squeeze(), tmp_labels.float()).item()
+            predictions += probs.squeeze().cpu().tolist()
+        
+        labels += tmp_labels.cpu().numpy().tolist()
+
+    true_labels, predict_labels = build_labels_and_predictions_for_different_datasets(hps, labels, predictions)
+    count = 0
+
+    assert len(true_labels) == len(predict_labels), "Number of predicted labels and true labels don't match!"
+    assert len(true_labels) == len(data), "Number of data instances and true labels don't match!"
+
+    error_analysis_data = []
+
+    for i in range(len(predict_labels)):
+        data_instance = data[i]
+        assert data_instance['label'] == true_labels[i]
+        error_analysis_data.append([data_instance['index'], data_instance['premise'], data_instance['ask-for'], data_instance['hypothesis1'], data_instance['hypothesis2'], true_labels[i], predict_labels[i]])
+
+        if predict_labels[i] == true_labels[i]:
+            count += 1
+        else:
+            continue
+    error_analysis_data.append(['', '', '', '', '', f"Accuracy: {count/len(true_labels)}", f"Loss: {loss/len(true_labels)}"])
+    error_analysis_df = pd.DataFrame(error_analysis_data, columns=["data_instance", "premise", "ask-for", "hypothesis1", "hypothesis2", "true_label", "predicted_label"])
+
+    file_name = f"""results_{hps.model_dir.replace('/', '-')}_{file_name_modifier}_{datetime.datetime.now().strftime("%y%m%d%H:%M:%S")}.tsv"""
+    file_path = os.path.join(OUTPUT_LOG_DIR, file_name)
+    print(f"Save error analysis results to {file_path}...")
+    error_analysis_df.to_csv(file_path, sep='\t', index=False)
 
 
 def define_logger():
@@ -464,10 +604,12 @@ def define_logger():
 
 def tokenize_gen(data, hps):
     if hps.model_name == 'bart':
-        tokenizer = BartTokenizer.from_pretrained(hps.model_dir)
+        tokenizer = BartTokenizer.from_pretrained(hps.model_dir, max_length=1024)
+        #tokenizer.pad_token = tokenizer.eos_token
+        #print(tokenizer.encode(tokenizer.pad_token), tokenizer.encode(tokenizer.unk_token), "These are special tokens")
     elif hps.model_name == 'gpt2':
         tokenizer = GPT2Tokenizer.from_pretrained(hps.model_dir)
-        tokenizer.pad_token = tokenizer.unk_token
+        tokenizer.pad_token = tokenizer.eos_token
     else:
         tokenizer = None
 
@@ -477,13 +619,14 @@ def tokenize_gen(data, hps):
     for example in data:
         if hps.model_name == 'bart':
             seq1 = example['cause'] + example['effect']
-            seq2 = example['general_truth']
+            seq2 = example['conceptual_explanation']
             inputs.append(seq1)
             labels.append(seq2)
         elif hps.model_name == 'gpt2':
-            inputs.append([example['cause']+' '+example['effect'], example['general_truth']])
+            #print(example)
+            inputs.append([example['cause']+' '+example['effect'], example['conceptual_explanation']])
             premise.append(example['cause']+' '+example['effect'])
-            labels.append(example['general_truth'])
+            labels.append(example['conceptual_explanation'])
         else:
             return
 
@@ -494,6 +637,7 @@ def tokenize_gen(data, hps):
         label_output = tokenizer(labels, padding=True)
         label_ids = torch.LongTensor(label_output['input_ids'])
         label_attention_mask = torch.LongTensor(label_output['attention_mask'])
+        #ensure pad token is ignored for loss computation
 
         return input_ids, input_attention_mask, label_ids, label_attention_mask
 
@@ -596,7 +740,7 @@ def top_k_logits(logits, k):
 #         context = torch.tensor(context, device=device, dtype=torch.long)
 #     else:
 #         assert context is None, 'Specify exactly one of start_token and context!'
-#         context = torch.full((batch_size, 1), start_token, device=device, dtype=torch.long)
+#             context = torch.full((batch_size, 1), start_token, device=device, dtype=torch.long)
 #     prev = context
 #     output = context.cuda()
 #     past = None
@@ -696,7 +840,7 @@ def gpt2_evaluate(model, length, data_loader, hps):
 
             # gold_tokens = tokenizer.convert_ids_to_tokens(gen_ids[i])
             # gold_text = remove_special_tokens(tokenizer.convert_tokens_to_string(gold_tokens))
-
+            print(f"BLEU:\n  Gold: {[gold_text[i]]}\n  Predicted: {generated_text[i].split('.')[0]+'.'}\n  BLEU: {bleu([gold_text[i]], generated_text[i].split('.')[0]+'.', [1, 0, 0, 0])}\n")
             bleu1 += bleu([gold_text[i]], generated_text[i].split('.')[0]+'.', [1, 0, 0, 0])
             bleu2 += bleu([gold_text[i]], generated_text[i].split('.')[0]+'.', [0, 1, 0, 0])
             bleu3 += bleu([gold_text[i]], generated_text[i].split('.')[0]+'.', [0, 0, 1, 0])
@@ -731,7 +875,7 @@ def gpt2_evaluate(model, length, data_loader, hps):
 
 
 
-def bart_evaluate(model, data_loader, hps):
+def bart_evaluate(model, length, data_loader, hps):
     tokenizer = BartTokenizer.from_pretrained(hps.model_dir)
 
     bleu1, bleu2, bleu3, bleu4 = 0, 0, 0, 0
@@ -748,7 +892,7 @@ def bart_evaluate(model, data_loader, hps):
         input_ids, input_mask, labels, label_mask = batch
         generate_ids = model.generate(input_ids, 
         							  attention_mask=input_mask, 
-        							  num_beams=hps.beam_size, 
+        							  #num_beams=hps.beam_size, 
         							  max_length=hps.length, 
         							  early_stopping=True, 
                                       no_repeat_ngram_size=3,
@@ -810,7 +954,10 @@ def bart_evaluate(model, data_loader, hps):
             rougelr += rougel['r']
 
     num_instances = (len(data_loader)-1) * hps.batch_size + input_ids.shape[0]
+    
+    print("Saving generations")
 
+    save_path = os.path.abspath(hps.output_dir)
     fo = open(hps.output_dir+'/bart_predict_'+nowtime+'.csv', 'w', encoding='utf-8')
     writer = csv.writer(fo)
     writer.writerows(output_text)

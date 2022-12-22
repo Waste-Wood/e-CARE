@@ -1,0 +1,11 @@
+torch
+transformers
+tqdm
+rouge
+nlp
+sentencepiece
+wandb
+nltk
+spacy
+ftfy
+protobuf<=3.20.1
